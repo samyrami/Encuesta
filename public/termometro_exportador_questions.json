@@ -1,0 +1,324 @@
+{
+  "metadata": {
+    "title": "Exporta Check",
+    "description": "Cuestionario de evaluación de capacidad exportadora",
+    "version": "1.0",
+    "created_by": "Laboratorio de Gobierno y Laboratorio de Comercio Internacional - Universidad de La Sabana",
+    "total_questions": 16
+  },
+  "contact_info": [
+    {
+      "id": "C001",
+      "pregunta": "Nombre de la compañía",
+      "field": "company",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "C002", 
+      "pregunta": "Nombre de quien responde la encuesta",
+      "field": "name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "C003",
+      "pregunta": "Email",
+      "field": "email", 
+      "type": "email",
+      "required": true
+    },
+    {
+      "id": "C004",
+      "pregunta": "Telefono del contacto",
+      "field": "phone",
+      "type": "tel",
+      "required": true
+    },
+    {
+      "id": "C005",
+      "pregunta": "Nit",
+      "field": "nit",
+      "type": "text", 
+      "required": true
+    },
+    {
+      "id": "C006",
+      "pregunta": "Ciudad",
+      "field": "city",
+      "type": "text",
+      "required": true
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q001",
+      "category": "Información Empresarial",
+      "text": "¿Cómo definiría el tamaño de su empresa?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 1,
+          "label": "Micro empresa (hasta 10 empleados, ventas ≤ $2.070 millones)"
+        },
+        {
+          "value": 2,
+          "label": "Pequeña empresa (11-50 empleados, ventas $2.070 - $17.240 millones)"
+        },
+        {
+          "value": 3,
+          "label": "Mediana empresa (51-200 empleados, ventas $17.240 - $103.620 millones)"
+        },
+        {
+          "value": 4,
+          "label": "Gran empresa (más de 200 empleados, ventas > $103.620 millones)"
+        }
+      ],
+      "help": "Para más información sobre definición de tamaño empresarial, consulte: https://www.mipymes.gov.co/temas-de-interes/definicion-de-tamano-empresarial"
+    },
+    {
+      "id": "Q002",
+      "category": "Certificaciones de Calidad",
+      "text": "Cuenta su empresa con Buenas Prácticas Agrícolas (BPA), de Manufactura (BPM) o equivalentes según el sector",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, contamos con BPA/BPM vigentes"
+        },
+        {
+          "value": 1,
+          "label": "No contamos con BPA/BPM"
+        }
+      ]
+    },
+    {
+      "id": "Q003",
+      "category": "Certificaciones Internacionales",
+      "text": "¿Cuenta su empresa con certificaciones internacionales (ej: Global GAP, HACCP, ISO, FDA, Fair Trade, Rainforest Alliance, etc.)?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, tenemos certificaciones internacionales vigentes"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos certificaciones internacionales"
+        }
+      ]
+    },
+    {
+      "id": "Q004",
+      "category": "Experiencia Exportadora",
+      "text": "¿La empresa exporta actualmente?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "La empresa exporta directamente"
+        },
+        {
+          "value": 2,
+          "label": "La empresa exporta indirectamente"
+        },
+        {
+          "value": 1,
+          "label": "No exportamos actualmente"
+        }
+      ]
+    },
+    {
+      "id": "Q005",
+      "category": "Recursos Humanos",
+      "text": "¿Dispone la empresa de personal capacitado en comercio exterior?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, contamos con personal especializado"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos personal capacitado en comercio exterior"
+        }
+      ]
+    },
+    {
+      "id": "Q006",
+      "category": "Gestión de Calidad",
+      "text": "¿Cuenta la empresa con un sistema de gestión de calidad implementado?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, tenemos un sistema de gestión de calidad"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos sistema de gestión de calidad"
+        }
+      ]
+    },
+    {
+      "id": "Q007",
+      "category": "Logística",
+      "text": "¿Dispone la empresa de una cadena logística optimizada para exportar?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, tenemos cadena logística optimizada"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos cadena logística optimizada"
+        }
+      ]
+    },
+    {
+      "id": "Q008",
+      "category": "Alianzas Estratégicas",
+      "text": "¿Ha establecido la empresa alianzas con distribuidores o agentes en el exterior?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, tenemos alianzas con distribuidores/agentes"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos alianzas con distribuidores"
+        }
+      ]
+    },
+    {
+      "id": "Q009",
+      "category": "Estrategia de Precios",
+      "text": "¿Cuenta su empresa con una estrategia de costos y precios para mercados internacionales?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, tenemos estrategia de precios internacional"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos estrategia de precios internacional"
+        }
+      ]
+    },
+    {
+      "id": "Q010",
+      "category": "Distribución Internacional",
+      "text": "¿Ha implementado la empresa un plan de distribución internacional?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, tenemos plan de distribución internacional"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos plan de distribución internacional"
+        }
+      ]
+    },
+    {
+      "id": "Q011",
+      "category": "Promoción Internacional",
+      "text": "¿Ha participado su empresa en ferias o misiones internacionales de promoción comercial?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, participamos en ferias/misiones internacionales"
+        },
+        {
+          "value": 1,
+          "label": "No hemos participado en ferias internacionales"
+        }
+      ]
+    },
+    {
+      "id": "Q012",
+      "category": "Material Promocional",
+      "text": "¿Cuenta la empresa con material promocional en otros idiomas?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, tenemos material promocional multilingüe"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos material en otros idiomas"
+        }
+      ]
+    },
+    {
+      "id": "Q013",
+      "category": "Financiación",
+      "text": "¿Ha utilizado la empresa mecanismos de financiación para exportaciones (créditos, seguros, garantías)?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, utilizamos mecanismos de financiación para exportación"
+        },
+        {
+          "value": 1,
+          "label": "No hemos utilizado financiación para exportación"
+        }
+      ]
+    },
+    {
+      "id": "Q014",
+      "category": "Exportación Indirecta",
+      "text": "¿Cuenta la empresa con experiencia previa en exportación indirecta?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 3,
+          "label": "Sí, tenemos experiencia en exportación indirecta"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos experiencia en exportación indirecta"
+        }
+      ]
+    },
+    {
+      "id": "Q015",
+      "category": "Investigación de Mercados",
+      "text": "¿La empresa realiza investigación de mercados internacionales de manera sistemática?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, realizamos investigación sistemática de mercados"
+        },
+        {
+          "value": 1,
+          "label": "No realizamos investigación sistemática"
+        }
+      ]
+    },
+    {
+      "id": "Q016",
+      "category": "Personal Dedicado",
+      "text": "¿Cuenta con un área o personal exclusivo para la gestión de exportaciones?",
+      "type": "single_choice",
+      "options": [
+        {
+          "value": 4,
+          "label": "Sí, tenemos personal dedicado a exportaciones"
+        },
+        {
+          "value": 1,
+          "label": "No tenemos personal exclusivo para exportaciones"
+        }
+      ]
+    }
+  ]
+}
