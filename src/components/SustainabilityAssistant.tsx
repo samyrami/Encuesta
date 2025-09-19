@@ -192,7 +192,7 @@ export const SustainabilityAssistant = () => {
             </div>
           </div>
 
-          <div className="h-[600px] flex flex-col bg-background/95">
+          <div className={`${state.currentStep === 'results' ? 'min-h-[600px]' : 'h-[600px]'} flex flex-col bg-background/95 ${state.currentStep === 'results' ? 'overflow-y-auto' : ''}`}>
             {renderContent()}
           </div>
         </div>

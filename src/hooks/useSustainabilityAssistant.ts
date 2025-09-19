@@ -284,6 +284,8 @@ Selecciona de la lista la universidad que deseas evaluar:`,
     const profile = state.profile as UserProfile;
     const responses = state.responses;
 
+    console.log('📊 Calculando resultados con respuestas:', responses.length);
+
     // Calculate scores by dimension
     const dimensions = {
       ambiental: calculateDimensionResults('Ambiental'),
@@ -291,7 +293,12 @@ Selecciona de la lista la universidad que deseas evaluar:`,
       gobernanza: calculateDimensionResults('Gobernanza')
     };
 
-    const overallScore = (dimensions.ambiental.score + dimensions.social.score + dimensions.gobernanza.score) / 3;
+    console.log('📊 Puntuaciones por dimensión:', dimensions);
+
+    const validScores = [dimensions.ambiental.score, dimensions.social.score, dimensions.gobernanza.score]
+      .filter(score => !isNaN(score) && isFinite(score));
+    
+    const overallScore = validScores.length > 0 ? validScores.reduce((a, b) => a + b, 0) / validScores.length : 0;
 
     return {
       profile,
@@ -308,8 +315,12 @@ Selecciona de la lista la universidad que deseas evaluar:`,
       sustainabilityQuestions.find(q => q.id === r.questionId)?.dimension === dimension
     );
 
+    console.log(`📊 ${dimension}: ${dimensionResponses.length} respuestas de ${dimensionQuestions.length} preguntas`);
+
     const totalScore = dimensionResponses.reduce((sum, r) => sum + r.score, 0);
-    const averageScore = totalScore / dimensionResponses.length;
+    const averageScore = dimensionResponses.length > 0 ? totalScore / dimensionResponses.length : 0;
+    
+    console.log(`📊 ${dimension}: total=${totalScore}, promedio=${averageScore}`);
 
     const strengths: string[] = [];
     const weaknesses: string[] = [];
