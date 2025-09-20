@@ -12,6 +12,7 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 - Comprehensive diagnostic reports with strengths, weaknesses, and recommendations
 - PDF/text export functionality
 - Optional AI-powered chat for specialized guidance (OpenAI integration)
+- **Automatic data collection with Google Sheets integration**
 - Persistent state management with localStorage
 - Responsive design with shadcn/ui components
 
@@ -36,12 +37,16 @@ src/
 │   ├── SustainabilityAssistant.tsx    # Main component orchestrator
 │   ├── SustainabilityResults.tsx      # Results display with scoring
 │   ├── SustainabilityChat.tsx         # AI-powered chat interface
+│   ├── GoogleSheetsStatus.tsx         # Google Sheets configuration UI
 │   └── ChatMessage.tsx                # Message display component
 ├── hooks/
 │   └── useSustainabilityAssistant.ts  # Main logic hook
 ├── data/
 │   ├── sustainability-questionnaire.v2.ts  # Question definitions & scoring
 │   └── universities.ts                # University list
+├── services/
+│   ├── googleSheetsService.ts         # Google Sheets API integration
+│   └── openaiService.ts               # OpenAI API integration
 └── utils/
     ├── persistence.ts                 # localStorage management
     └── debug.ts                      # Debugging utilities
@@ -140,6 +145,15 @@ clearAllSustainabilityData()
 2. The app works without API key (chat feature disabled)
 3. API key can also be provided at runtime via UI prompt
 
+### Google Sheets Integration Setup  
+1. Add to `.env` file:
+   ```
+   VITE_GOOGLE_SHEETS_API_KEY=your-google-sheets-api-key
+   ```
+2. The app works without API key (responses saved locally only)
+3. API key can be configured at runtime via UI settings
+4. Responses automatically saved to configured Google Sheet upon completion
+
 ## Known Issues & Solutions
 
 ### Score Display Showing 0.0/5.0
@@ -152,6 +166,14 @@ clearAllSustainabilityData()
 ### AI Chat Not Working  
 **Cause**: Missing or invalid OpenAI API key
 **Solution**: Set `VITE_OPENAI_API_KEY` in environment or provide via UI
+
+### Google Sheets Not Saving Responses
+**Cause**: Missing, invalid, or insufficient permissions for Google Sheets API key
+**Solution**: 
+1. Verify API key in browser console with Database icon in header
+2. Ensure Google Sheets API is enabled in your Google Console project
+3. Check that sheet ID (1wjNTHAdEN4gCF2WP00dqKTu3Vu9UHB360aKMa0DCIM8) is accessible
+4. Responses are automatically saved locally as backup
 
 ### Build Warnings About NODE_ENV
 **Expected**: Vite shows warning about NODE_ENV in .env file - this is normal
@@ -169,6 +191,9 @@ clearAllSustainabilityData()
 ```bash
 # Optional - for AI chat functionality
 VITE_OPENAI_API_KEY=sk-...
+
+# Optional - for automatic response collection
+VITE_GOOGLE_SHEETS_API_KEY=your-google-sheets-api-key
 
 # Production - set automatically by hosting platform
 PORT=3000
@@ -190,6 +215,7 @@ PORT=3000
 ## Integration Points
 
 - **OpenAI API**: GPT-3.5-turbo for chat functionality
+- **Google Sheets API**: Automatic survey response collection and storage
 - **Export**: html2pdf.js for PDF generation
 - **Icons**: Lucide React icon library
 - **Fonts**: System font stack via Tailwind

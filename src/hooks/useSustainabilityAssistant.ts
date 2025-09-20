@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { sustainabilityQuestions, UserProfile, SustainabilityResponse, SustainabilityResults } from '@/data/sustainability-questionnaire.v2';
 import { universities } from '@/data/universities';
 import { persistAssistantData, loadAssistantData, clearAssistantData, hasPersistedData } from '@/utils/persistence';
+import { googleSheetsService, SurveyResponse } from '@/services/googleSheetsService';
 
 export interface ChatMessage {
   id: string;
@@ -283,9 +284,59 @@ Selecciona de la lista la universidad que deseas evaluar:`,
     }
   }, [state.responses, addMessage]);
 
+  const saveToGoogleSheets = async (results: SustainabilityResults) => {
+    try {
+      if (!googleSheetsService.isConfigured()) {
+        console.log('📋 Google Sheets no configurado, omitiendo...');
+        return;
+      }
+
+      console.log('📄 Preparando datos para Google Sheets...');
+      
+      const surveyData: SurveyResponse = {
+        timestamp: results.completedAt.toISOString(),
+        name: results.profile.name,
+        university: results.profile.university,
+        overallScore: results.overallScore || 0,
+        ambientalScore: results.dimensions.ambiental.score || 0,
+        socialScore: results.dimensions.social.score || 0,
+        gobernanzaScore: results.dimensions.gobernanza.score || 0,
+        responses: results.responses,
+        strengths: [
+          ...results.dimensions.ambiental.strengths,
+          ...results.dimensions.social.strengths,
+          ...results.dimensions.gobernanza.strengths
+        ],
+        weaknesses: [
+          ...results.dimensions.ambiental.weaknesses,
+          ...results.dimensions.social.weaknesses,
+          ...results.dimensions.gobernanza.weaknesses
+        ],
+        recommendations: [
+          ...results.dimensions.ambiental.recommendations,
+          ...results.dimensions.social.recommendations,
+          ...results.dimensions.gobernanza.recommendations
+        ]
+      };
+
+      await googleSheetsService.saveResponse(surveyData);
+      console.log('✅ Datos guardados en Google Sheets exitosamente');
+      
+      // Mostrar notificación al usuario
+      addMessage(
+        '📈 **¡Respuestas guardadas!**\n\nTus respuestas han sido guardadas exitosamente en nuestra base de datos para análisis estadístico.',
+        'bot'
+      );
+      
+    } catch (error) {
+      console.error('❌ Error guardando en Google Sheets:', error);
+      // No mostrar error al usuario, ya que las respuestas están guardadas localmente
+    }
+  }; // Note: addMessage is used inside but it's stable and doesn't need dependency
+
   const generateResults = useCallback(() => {
     console.log('🎯 Iniciando generación de resultados...');
-    console.log('📊 Estado actual - respuestas:', state.responses.length);
+    console.log('📃 Estado actual - respuestas:', state.responses.length);
     console.log('👤 Perfil:', state.profile);
     
     // Calcular resultados inmediatamente
@@ -310,11 +361,16 @@ Selecciona de la lista la universidad que deseas evaluar:`,
       }
     }, 100);
 
+    // Intentar guardar en Google Sheets
+    setTimeout(() => {
+      saveToGoogleSheets(results);
+    }, 500);
+
     addMessage(
       '✅ **¡Diagnóstico Completado!**\n\nTu evaluación de sostenibilidad universitaria ha sido procesada exitosamente.\n\nPuedes revisar los resultados detallados, exportar el informe en PDF, o continuar conversando para profundizar en recomendaciones específicas.',
       'bot'
     );
-  }, [state.responses, state.profile]);
+  }, [state.responses, state.profile, saveToGoogleSheets, addMessage]);
 
   const calculateSustainabilityResults = useCallback((): SustainabilityResults => {
     const profile = state.profile as UserProfile;
