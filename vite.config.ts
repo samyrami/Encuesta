@@ -41,6 +41,17 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: "dist",
       assetsDir: "assets",
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            router: ['react-router-dom'],
+            ui: ['@radix-ui/react-dialog', '@radix-ui/react-tabs', '@radix-ui/react-scroll-area'],
+            utils: ['date-fns', 'clsx', 'tailwind-merge']
+          }
+        }
+      },
+      chunkSizeWarningLimit: 1000,
     },
   };
 });
