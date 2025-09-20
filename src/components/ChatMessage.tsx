@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { UniversitySelect } from './UniversitySelect';
 import { Sparkles, User } from 'lucide-react';
+import unisabanaLogo from '@/assets/unisabana-logo-oficial.png';
 
 interface ChatMessage {
   id: string;
@@ -25,11 +26,13 @@ export const ChatMessage = ({ message, onOptionSelect }: ChatMessageProps) => {
   return (
     <div className={cn("flex gap-3 mb-6", isBot ? "justify-start" : "justify-end")}>
       {isBot && (
-        <Avatar className="w-8 h-8 bg-gradient-to-br from-primary to-primary-light shadow-soft">
-          <AvatarFallback className="bg-transparent text-primary-foreground">
-            <Sparkles className="w-4 h-4" />
-          </AvatarFallback>
-        </Avatar>
+        <div className="w-8 h-8 rounded-full bg-white border-2 border-green-200 flex items-center justify-center shadow-soft overflow-hidden">
+          <img 
+            src={unisabanaLogo} 
+            alt="Universidad de La Sabana" 
+            className="w-6 h-6 object-contain"
+          />
+        </div>
       )}
       
       <div className={cn("max-w-[80%] space-y-2", !isBot && "order-first")}>

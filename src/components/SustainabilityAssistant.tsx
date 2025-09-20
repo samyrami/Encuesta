@@ -8,6 +8,8 @@ import { useSustainabilityAssistant } from '@/hooks/useSustainabilityAssistant';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { RotateCcw, Sparkles, Leaf } from 'lucide-react';
+import unisabanaLogo from '@/assets/unisabana-logo-oficial.png';
+import govlabLogo from '@/assets/govlab-logo.jpeg';
 
 export const SustainabilityAssistant = () => {
   const {
@@ -133,8 +135,12 @@ export const SustainabilityAssistant = () => {
                 
                 {state.currentStep !== 'results' && messages.length > 0 && (
                   <div className="flex justify-start items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-soft">
-                      <Leaf className="w-4 h-4 text-white" />
+                    <div className="w-8 h-8 rounded-full bg-white border-2 border-green-200 flex items-center justify-center shadow-soft overflow-hidden">
+                      <img 
+                        src={unisabanaLogo} 
+                        alt="Universidad de La Sabana" 
+                        className="w-6 h-6 object-contain"
+                      />
                     </div>
                     <div className="bg-chat-bubble-bot border border-card-border rounded-2xl px-4 py-3 shadow-soft animate-pulse">
                       <div className="typing-dots">
@@ -172,18 +178,30 @@ export const SustainabilityAssistant = () => {
       <div className="container mx-auto px-4 py-6 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="flex items-center justify-center space-x-3 mb-2">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center shadow-lg">
-              <Leaf className="w-6 h-6 text-white" />
-            </div>
-            <div className="text-left">
-              <h1 className="text-2xl font-bold text-primary">
-                Asistente Virtual de Sostenibilidad Universitaria
-              </h1>
-              <p className="text-sm text-muted-foreground">
-                Universidad de La Sabana
-              </p>
-            </div>
+          <div className="flex items-center justify-center space-x-4 mb-4">
+            {/* Universidad de La Sabana Logo */}
+            <img 
+              src={unisabanaLogo} 
+              alt="Universidad de La Sabana" 
+              className="h-16 w-auto object-contain"
+            />
+            {/* GovLab Logo */}
+            <img 
+              src={govlabLogo} 
+              alt="Laboratorio de Gobierno" 
+              className="h-16 w-auto object-contain rounded-lg"
+            />
+          </div>
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-primary mb-2">
+              Asistente Virtual de Sostenibilidad Universitaria
+            </h1>
+            <p className="text-sm text-muted-foreground mb-1">
+              <strong>Universidad de La Sabana</strong>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Laboratorio de Gobierno • Laboratorio de Comercio Internacional
+            </p>
           </div>
         </div>
         
@@ -222,9 +240,21 @@ export const SustainabilityAssistant = () => {
 
         {/* Footer */}
         <div className="mt-6 text-center text-xs text-muted-foreground">
+          <div className="flex items-center justify-center space-x-3 mb-3">
+            <img 
+              src={unisabanaLogo} 
+              alt="Universidad de La Sabana" 
+              className="h-6 w-auto object-contain opacity-60"
+            />
+            <img 
+              src={govlabLogo} 
+              alt="Laboratorio de Gobierno" 
+              className="h-6 w-auto object-contain rounded opacity-60"
+            />
+          </div>
           <p>
-            Desarrollado por el <strong>Laboratorio de Gobierno</strong><br />
-            Universidad de La Sabana © 2024
+            Desarrollado por el <strong>Laboratorio de Gobierno</strong> y <strong>Laboratorio de Comercio Internacional</strong><br />
+            <strong>Universidad de La Sabana</strong> © 2024
           </p>
           <p className="mt-2">
             🌱 Promoviendo la sostenibilidad en la educación superior
