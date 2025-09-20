@@ -9,9 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "node start.js",
-    "start:vite": "vite preview --host 0.0.0.0 --port ${PORT:-3000}",
-    "railway:start": "npm run build && node start.js"
+    "start": "vite preview --host 0.0.0.0 --port $PORT",
+    "dev": "vite --host 0.0.0.0"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
