@@ -15,17 +15,17 @@ import { Label } from '@/components/ui/label';
 
 export const GoogleSheetsStatus = () => {
   const [isConfigured, setIsConfigured] = useState(googleSheetsService.isConfigured());
-  const [apiKey, setApiKey] = useState('');
+  const [serviceAccountJson, setServiceAccountJson] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isTestingConnection, setIsTestingConnection] = useState(false);
   const [isTestingSave, setIsTestingSave] = useState(false);
 
-  const handleSaveApiKey = async () => {
-    if (!apiKey.trim()) return;
+  const handleSaveServiceAccount = async () => {
+    if (!serviceAccountJson.trim()) return;
     
     try {
       setIsTestingConnection(true);
-      googleSheetsService.setApiKey(apiKey);
+      googleSheetsService.setServiceAccount(serviceAccountJson);
       
       // Test the connection
       const isConnected = await googleSheetsService.testConnection();
@@ -33,14 +33,14 @@ export const GoogleSheetsStatus = () => {
       if (isConnected) {
         setIsConfigured(true);
         setIsDialogOpen(false);
-        setApiKey('');
-        alert('¡Google Sheets configurado exitosamente! Las respuestas se guardarán automáticamente.');
+        setServiceAccountJson('');
+        alert('✅ ¡Google Sheets configurado exitosamente! Las respuestas se guardarán automáticamente.');
       } else {
-        alert('Error: No se pudo conectar con Google Sheets. Verifica que la API key sea válida y que tengas permisos para acceder a la hoja.');
+        alert('❌ Error: No se pudo conectar con Google Sheets. Verifica que el Service Account sea válido y tenga permisos.');
       }
     } catch (error) {
       console.error('Error testing connection:', error);
-      alert('Error al probar la conexión. Verifica que la API key sea válida.');
+      alert('❌ Error al probar la conexión: ' + (error as Error).message);
     } finally {
       setIsTestingConnection(false);
     }
@@ -99,7 +99,7 @@ export const GoogleSheetsStatus = () => {
               </span>
             ) : (
               <span>
-                Configura tu API key de Google Sheets para guardar automáticamente las respuestas de la encuesta.
+                Configura tu Service Account de Google para guardar automáticamente las respuestas de la encuesta.
               </span>
             )}
           </DialogDescription>
@@ -108,32 +108,33 @@ export const GoogleSheetsStatus = () => {
         {!isConfigured && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="apiKey">API Key de Google Sheets</Label>
-              <Input
-                id="apiKey"
-                type="password"
-                placeholder="Ingresa tu API key aquí..."
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSaveApiKey()}
+              <Label htmlFor="serviceAccount">Service Account JSON</Label>
+              <textarea
+                id="serviceAccount"
+                className="w-full min-h-[120px] p-3 text-sm border border-gray-300 rounded-md resize-vertical font-mono"
+                placeholder='Pega aquí el contenido completo del archivo JSON de tu Service Account...\n\nEjemplo:\n{\n  "type": "service_account",\n  "project_id": "tu-proyecto",\n  "private_key_id": "...",\n  "private_key": "...",\n  ...\n}'
+                value={serviceAccountJson}
+                onChange={(e) => setServiceAccountJson(e.target.value)}
               />
             </div>
             
             <div className="text-xs text-muted-foreground space-y-1">
-              <p><strong>¿Cómo obtener la API key?</strong></p>
+              <p><strong>¿Cómo crear un Service Account?</strong></p>
               <ol className="list-decimal list-inside space-y-1 ml-2">
-                <li>Ve a <a href="https://console.developers.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Google Console</a></li>
+                <li>Ve a <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Google Cloud Console</a></li>
                 <li>Crea un proyecto o selecciona uno existente</li>
                 <li>Habilita la API de Google Sheets</li>
-                <li>Crea credenciales (API Key)</li>
-                <li>Asegúrate de que tu hoja sea pública o comparta permisos</li>
+                <li>Ve a IAM y administración &gt; Cuentas de servicio</li>
+                <li>Crea una nueva cuenta de servicio</li>
+                <li>Descarga el archivo JSON de credenciales</li>
+                <li>Comparte tu Google Sheet con el email del Service Account (con permisos de editor)</li>
               </ol>
             </div>
             
             <div className="flex gap-2">
               <Button 
-                onClick={handleSaveApiKey}
-                disabled={!apiKey.trim() || isTestingConnection}
+                onClick={handleSaveServiceAccount}
+                disabled={!serviceAccountJson.trim() || isTestingConnection}
                 className="flex-1"
               >
                 {isTestingConnection ? 'Probando conexión...' : 'Guardar y Probar'}

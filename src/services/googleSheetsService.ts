@@ -12,26 +12,159 @@ interface SurveyResponse {
   recommendations: string[];
 }
 
+interface ServiceAccountConfig {
+  type: string;
+  project_id: string;
+  private_key_id: string;
+  private_key: string;
+  client_email: string;
+  client_id: string;
+  auth_uri: string;
+  token_uri: string;
+  auth_provider_x509_cert_url: string;
+  client_x509_cert_url: string;
+}
+
 class GoogleSheetsService {
-  private apiKey: string | null = null;
+  private serviceAccount: ServiceAccountConfig | null = null;
+  private accessToken: string | null = null;
+  private tokenExpiry: number = 0;
   private sheetId = '1wjNTHAdEN4gCF2WP00dqKTu3Vu9UHB360aKMa0DCIM8';
 
   constructor() {
-    // Intentar obtener API key desde variables de entorno
-    this.apiKey = import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || null;
+    this.loadServiceAccount();
   }
 
-  private getApiKey(): string {
-    if (this.apiKey) return this.apiKey;
-    
-    // Intentar desde localStorage
-    const storedKey = localStorage.getItem('google_sheets_api_key');
-    if (storedKey) {
-      this.apiKey = storedKey;
-      return storedKey;
+  private loadServiceAccount() {
+    // Try to load from environment variable first
+    const envConfig = import.meta.env.VITE_GOOGLE_SERVICE_ACCOUNT;
+    if (envConfig) {
+      try {
+        this.serviceAccount = JSON.parse(envConfig);
+        return;
+      } catch (error) {
+        console.warn('Failed to parse VITE_GOOGLE_SERVICE_ACCOUNT');
+      }
     }
+
+    // Try to load from localStorage
+    const storedConfig = localStorage.getItem('google_service_account');
+    if (storedConfig) {
+      try {
+        this.serviceAccount = JSON.parse(storedConfig);
+      } catch (error) {
+        console.warn('Failed to parse stored service account config');
+      }
+    }
+  }
+
+  // Create JWT token for service account authentication
+  private async createJWT(): Promise<string> {
+    if (!this.serviceAccount) {
+      throw new Error('Service account not configured');
+    }
+
+    const header = {
+      "alg": "RS256",
+      "typ": "JWT"
+    };
+
+    const now = Math.floor(Date.now() / 1000);
+    const payload = {
+      "iss": this.serviceAccount.client_email,
+      "scope": "https://www.googleapis.com/auth/spreadsheets",
+      "aud": "https://oauth2.googleapis.com/token",
+      "exp": now + 3600, // 1 hour
+      "iat": now
+    };
+
+    const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    const encodedPayload = btoa(JSON.stringify(payload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
     
-    throw new Error('Google Sheets API key not configured');
+    const signatureInput = encodedHeader + '.' + encodedPayload;
+    
+    // Import the private key for signing
+    const privateKey = this.serviceAccount.private_key.replace(/\\n/g, '\n');
+    
+    try {
+      const keyData = await crypto.subtle.importKey(
+        'pkcs8',
+        this.pemToArrayBuffer(privateKey),
+        {
+          name: 'RSASSA-PKCS1-v1_5',
+          hash: 'SHA-256'
+        },
+        false,
+        ['sign']
+      );
+
+      const signature = await crypto.subtle.sign(
+        'RSASSA-PKCS1-v1_5',
+        keyData,
+        new TextEncoder().encode(signatureInput)
+      );
+
+      const encodedSignature = btoa(String.fromCharCode(...new Uint8Array(signature)))
+        .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+
+      return signatureInput + '.' + encodedSignature;
+    } catch (error) {
+      console.error('Error creating JWT:', error);
+      throw new Error('Failed to create JWT token');
+    }
+  }
+
+  private pemToArrayBuffer(pem: string): ArrayBuffer {
+    const pemHeader = "-----BEGIN PRIVATE KEY-----";
+    const pemFooter = "-----END PRIVATE KEY-----";
+    const pemContents = pem.substring(pemHeader.length, pem.length - pemFooter.length);
+    const binaryString = atob(pemContents);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  // Get access token using service account
+  private async getAccessToken(): Promise<string> {
+    // Check if we have a valid cached token
+    if (this.accessToken && Date.now() < this.tokenExpiry) {
+      return this.accessToken;
+    }
+
+    if (!this.serviceAccount) {
+      throw new Error('Service account not configured');
+    }
+
+    try {
+      const jwt = await this.createJWT();
+      
+      const response = await fetch('https://oauth2.googleapis.com/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: new URLSearchParams({
+          'grant_type': 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+          'assertion': jwt
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`OAuth2 token request failed: ${response.status} - ${errorText}`);
+      }
+
+      const tokenData = await response.json();
+      this.accessToken = tokenData.access_token;
+      this.tokenExpiry = Date.now() + (tokenData.expires_in * 1000) - 60000; // Refresh 1 minute before expiry
+
+      return this.accessToken;
+    } catch (error) {
+      console.error('Error getting access token:', error);
+      throw error;
+    }
   }
 
   async saveResponse(data: SurveyResponse): Promise<boolean> {
@@ -39,8 +172,8 @@ class GoogleSheetsService {
       console.log('📄 Guardando respuesta en Google Sheets...');
       console.log('📋 Datos a guardar:', data);
       
-      const apiKey = this.getApiKey();
-      console.log('🔑 API Key configurada:', apiKey ? 'Sí' : 'No');
+      const accessToken = await this.getAccessToken();
+      console.log('🔑 Access token obtenido:', accessToken ? 'Sí' : 'No');
       
       // Try different sheet names in order of preference
       const sheetNames = ['Sheet1', 'Hoja1', 'Responses', 'Datos'];
@@ -86,8 +219,12 @@ class GoogleSheetsService {
           ];
 
           // First, try to check if sheet exists and has headers
-          const checkUrl = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/${sheetName}!A1:M1?key=${apiKey}`;
-          const checkResponse = await fetch(checkUrl);
+          const checkUrl = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/${sheetName}!A1:M1`;
+          const checkResponse = await fetch(checkUrl, {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
           
           let needsHeaders = true;
           if (checkResponse.ok) {
@@ -99,11 +236,12 @@ class GoogleSheetsService {
           // If we need headers, add them first
           if (needsHeaders) {
             console.log(`📋 Añadiendo encabezados a ${sheetName}...`);
-            const headerUrl = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/${sheetName}!A1:append?valueInputOption=USER_ENTERED&key=${apiKey}`;
+            const headerUrl = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/${sheetName}!A1:append?valueInputOption=USER_ENTERED`;
             const headerResponse = await fetch(headerUrl, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${accessToken}`
               },
               body: JSON.stringify({
                 values: [headerValues]
@@ -117,13 +255,14 @@ class GoogleSheetsService {
           }
           
           // Now append the data
-          const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/${range}:append?valueInputOption=USER_ENTERED&key=${apiKey}`;
+          const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}/values/${range}:append?valueInputOption=USER_ENTERED`;
           console.log(`🔗 Intentando guardar en ${sheetName}:`, url);
           
           const response = await fetch(url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'Authorization': `Bearer ${accessToken}`
             },
             body: JSON.stringify({
               values: [dataValues]
@@ -178,13 +317,18 @@ class GoogleSheetsService {
 
   async testConnection(): Promise<boolean> {
     try {
-      const apiKey = this.getApiKey();
-      const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}?key=${apiKey}`;
+      const accessToken = await this.getAccessToken();
+      const url = `https://sheets.googleapis.com/v4/spreadsheets/${this.sheetId}`;
       
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
       
       if (!response.ok) {
-        throw new Error(`Connection test failed: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`Connection test failed: ${response.status} - ${errorText}`);
       }
 
       console.log('✅ Conexión con Google Sheets exitosa');
@@ -195,13 +339,21 @@ class GoogleSheetsService {
     }
   }
 
-  setApiKey(apiKey: string): void {
-    this.apiKey = apiKey;
-    localStorage.setItem('google_sheets_api_key', apiKey);
+  setServiceAccount(serviceAccountJson: string): void {
+    try {
+      const config = JSON.parse(serviceAccountJson);
+      this.serviceAccount = config;
+      localStorage.setItem('google_service_account', serviceAccountJson);
+      // Clear any cached tokens when config changes
+      this.accessToken = null;
+      this.tokenExpiry = 0;
+    } catch (error) {
+      throw new Error('Invalid service account JSON');
+    }
   }
 
   isConfigured(): boolean {
-    return !!(import.meta.env.VITE_GOOGLE_SHEETS_API_KEY || localStorage.getItem('google_sheets_api_key'));
+    return !!(this.serviceAccount && this.serviceAccount.client_email && this.serviceAccount.private_key);
   }
 
   async getBackupData(): Promise<SurveyResponse[]> {

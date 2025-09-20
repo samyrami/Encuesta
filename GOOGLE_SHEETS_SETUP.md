@@ -1,11 +1,11 @@
 # 📊 Guía de Configuración de Google Sheets
 
-## 🔧 Problema Actual
-La integración muestra "configurada" pero no se están guardando los datos en el Google Sheet.
+## 🔧 Problema Solucionado
+**Google Sheets API ya no acepta API keys simples para escritura. Ahora usamos Service Account authentication.**
 
-## ✅ Solución Paso a Paso
+## ✅ Nueva Solución con Service Account
 
-### 1. Verificar la Configuración de la API Key
+### 1. Verificar la Configuración Actual
 
 **Abrir la consola del navegador** (F12) y ejecutar:
 ```javascript
@@ -14,7 +14,7 @@ testGoogleSheetsIntegration()
 
 Esto te dirá exactamente qué está fallando.
 
-### 2. Configurar Correctamente Google Sheets API
+### 2. Configurar Service Account en Google Cloud
 
 #### Paso A: Crear/Verificar el Proyecto en Google Cloud Console
 
@@ -23,29 +23,45 @@ Esto te dirá exactamente qué está fallando.
 3. Ve a **APIs y servicios** > **Biblioteca**
 4. Busca "Google Sheets API" y **habilítala**
 
-#### Paso B: Crear Credenciales
+#### Paso B: Crear Service Account
 
-1. Ve a **APIs y servicios** > **Credenciales**
-2. Haz clic en **Crear credenciales** > **Clave de API**
-3. **IMPORTANTE**: Configura las restricciones:
-   - **Restricciones de aplicación**: Selecciona "Referentes HTTP"
-   - Agrega tus dominios:
-     - `http://localhost:*`
-     - `https://localhost:*`
-     - `https://*.railway.app/*` (si usas Railway)
-   - **Restricciones de API**: Selecciona "Google Sheets API"
+1. Ve a **IAM y administración** > **Cuentas de servicio**
+2. Haz clic en **Crear cuenta de servicio**
+3. Asigna un nombre: `sustainability-survey-collector`
+4. Descripción: `Service account for collecting survey responses`
+5. Haz clic en **Crear y continuar**
+6. **No asignes roles especiales** (haz clic en "Continuar")
+7. Haz clic en **Listo**
 
-#### Paso C: Configurar el Google Sheet
+#### Paso C: Descargar Credenciales JSON
+
+1. Encuentra tu service account en la lista
+2. Haz clic en el email del service account
+3. Ve a la pestaña **Claves**
+4. Haz clic en **Agregar clave** > **Crear nueva clave**
+5. Selecciona **JSON** y haz clic en **Crear**
+6. Se descargará automáticamente el archivo JSON - **guárdalo en lugar seguro**
+
+#### Paso D: Configurar el Google Sheet
 
 1. Abre tu Google Sheet: [https://docs.google.com/spreadsheets/d/1wjNTHAdEN4gCF2WP00dqKTu3Vu9UHB360aKMa0DCIM8/](https://docs.google.com/spreadsheets/d/1wjNTHAdEN4gCF2WP00dqKTu3Vu9UHB360aKMa0DCIM8/)
 
-2. **IMPORTANTE**: El sheet debe ser público o tener permisos de edición
+2. **IMPORTANTE**: Compartir con el Service Account
    - Haz clic en **Compartir** (botón azul)
-   - En "Obtener vínculo" > **Cambiar**
-   - Selecciona **"Cualquier persona con el vínculo"**
-   - Asegúrate de que sea **"Editor"** (no solo "Visor")
+   - Copia el email del service account desde tu archivo JSON (campo `client_email`)
+   - Pega el email en el campo "Agregar personas y grupos"
+   - Asegúrate de que el permiso sea **"Editor"**
+   - Haz clic en **Enviar**
 
 3. Verificar que tengas una hoja llamada **"Sheet1"** o **"Hoja1"**
+
+#### Paso E: Configurar la Aplicación
+
+1. Abre el archivo JSON descargado en un editor de texto
+2. Copia **todo el contenido** del archivo
+3. En la aplicación, haz clic en el ícono de base de datos (Google Sheets)
+4. Pega el contenido JSON completo en el campo de texto
+5. Haz clic en **"Guardar y Probar"**
 
 ### 3. Probar la Integración
 
@@ -68,22 +84,28 @@ getGoogleSheetsBackup()
 
 ### 4. Errores Comunes y Soluciones
 
+#### Error 401: "UNAUTHENTICATED" o "API keys are not supported"
+- **Solución**: Necesitas usar Service Account en lugar de API key
+- Sigue la guía completa para configurar Service Account
+
 #### Error 403: "The caller does not have permission"
-- **Solución**: El Google Sheet no es público o no tiene permisos de edición
-- Ve al Sheet > Compartir > Cambiar a "Cualquier persona con el vínculo" > "Editor"
+- **Solución**: El Service Account no tiene acceso al Google Sheet
+- Comparte tu Google Sheet con el email del Service Account (con permisos de "Editor")
+- El email está en el campo `client_email` del archivo JSON
 
 #### Error 400: "Unable to parse range"
 - **Solución**: Nombre de la hoja incorrecto
 - Asegúrate de que tu hoja se llame "Sheet1" o "Hoja1"
 
 #### Error 404: "Requested entity was not found"
-- **Solución**: ID del Sheet incorrecto o sheet privado
+- **Solución**: ID del Sheet incorrecto o sheet no accesible
 - Verifica que el ID sea: `1wjNTHAdEN4gCF2WP00dqKTu3Vu9UHB360aKMa0DCIM8`
+- Verifica que hayas compartido el sheet con el service account
 
-#### Error 403: "API key not valid"
-- **Solución**: API key incorrecta o sin permisos
-- Verifica que la API key tenga acceso a Google Sheets API
-- Revisa las restricciones de dominio
+#### Error "Invalid service account JSON"
+- **Solución**: El JSON del Service Account está malformado
+- Verifica que hayas copiado **todo** el contenido del archivo JSON
+- Asegúrate de que no haya caracteres extra o faltantes
 
 ### 5. Formato Esperado en Google Sheets
 
