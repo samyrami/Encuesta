@@ -54,6 +54,21 @@ export const useSustainabilityAssistant = () => {
             setState(persistedData.state);
             setMessages(persistedData.messages);
             console.log('📋 Sesión anterior restaurada');
+            
+            // Si estamos en resultados pero no hay resultados, intentar recuperarlos
+            if (persistedData.state.currentStep === 'results' && !persistedData.state.results) {
+              console.log('🔄 Intentando recuperar resultados...');
+              try {
+                const backupResults = localStorage.getItem('sustainability_results_backup');
+                if (backupResults) {
+                  const parsedResults = JSON.parse(backupResults);
+                  setState(prev => ({ ...prev, results: parsedResults }));
+                  console.log('✅ Resultados recuperados desde backup');
+                }
+              } catch (error) {
+                console.error('❌ Error recuperando resultados:', error);
+              }
+            }
           }
         }
       } catch (error) {
@@ -269,22 +284,44 @@ Selecciona de la lista la universidad que deseas evaluar:`,
   }, [state.responses, addMessage]);
 
   const generateResults = useCallback(() => {
-    setState(prev => ({ ...prev, currentStep: 'results' }));
+    console.log('🎯 Iniciando generación de resultados...');
+    console.log('📊 Estado actual - respuestas:', state.responses.length);
+    console.log('👤 Perfil:', state.profile);
     
+    // Calcular resultados inmediatamente
     const results = calculateSustainabilityResults();
-    setState(prev => ({ ...prev, results }));
+    console.log('✅ Resultados calculados:', results);
+    
+    // Actualizar estado con resultados
+    setState(prev => ({ 
+      ...prev, 
+      currentStep: 'results',
+      results 
+    }));
+
+    // Forzar persistencia inmediata de resultados
+    setTimeout(() => {
+      console.log('💾 Guardando resultados en localStorage...');
+      try {
+        localStorage.setItem('sustainability_results_backup', JSON.stringify(results));
+        console.log('✅ Resultados guardados exitosamente');
+      } catch (error) {
+        console.error('❌ Error al guardar resultados:', error);
+      }
+    }, 100);
 
     addMessage(
       '✅ **¡Diagnóstico Completado!**\n\nTu evaluación de sostenibilidad universitaria ha sido procesada exitosamente.\n\nPuedes revisar los resultados detallados, exportar el informe en PDF, o continuar conversando para profundizar en recomendaciones específicas.',
       'bot'
     );
-  }, []);
+  }, [state.responses, state.profile]);
 
   const calculateSustainabilityResults = useCallback((): SustainabilityResults => {
     const profile = state.profile as UserProfile;
     const responses = state.responses;
 
     console.log('📊 Calculando resultados con respuestas:', responses.length);
+    console.log('🔍 Respuestas completas:', responses);
 
     // Calculate scores by dimension
     const dimensions = {
@@ -296,17 +333,22 @@ Selecciona de la lista la universidad que deseas evaluar:`,
     console.log('📊 Puntuaciones por dimensión:', dimensions);
 
     const validScores = [dimensions.ambiental.score, dimensions.social.score, dimensions.gobernanza.score]
-      .filter(score => !isNaN(score) && isFinite(score));
+      .filter(score => !isNaN(score) && isFinite(score) && score > 0);
     
     const overallScore = validScores.length > 0 ? validScores.reduce((a, b) => a + b, 0) / validScores.length : 0;
 
-    return {
+    console.log('🎯 Puntuación general calculada:', overallScore);
+
+    const finalResults = {
       profile,
       responses,
       dimensions,
       overallScore,
       completedAt: new Date()
     };
+
+    console.log('✅ Resultados finales:', finalResults);
+    return finalResults;
   }, [state.profile, state.responses]);
 
   const calculateDimensionResults = useCallback((dimension: 'Ambiental' | 'Social' | 'Gobernanza') => {
@@ -316,6 +358,7 @@ Selecciona de la lista la universidad que deseas evaluar:`,
     );
 
     console.log(`📊 ${dimension}: ${dimensionResponses.length} respuestas de ${dimensionQuestions.length} preguntas`);
+    console.log(`🔍 ${dimension} - IDs de respuestas:`, dimensionResponses.map(r => r.questionId));
 
     if (dimensionResponses.length === 0) {
       console.log(`⚠️ ${dimension}: Sin respuestas, devolviendo valores por defecto`);

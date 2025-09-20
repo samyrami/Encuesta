@@ -290,6 +290,35 @@ Universidad de La Sabana © 2024
           </CardContent>
         </Card>
 
+        {/* Debug Section - Only show if results are empty */}
+        {results.overallScore === 0 && (
+          <Card className="border-2 border-red-200 bg-red-50">
+            <CardHeader>
+              <CardTitle className="text-red-700 flex items-center gap-2">
+                ⚠️ Problema con los Resultados
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-red-700 mb-4">
+                Los resultados muestran 0.0 en todas las dimensiones. Esto puede deberse a:
+              </p>
+              <ul className="text-sm text-red-600 list-disc list-inside mb-4">
+                <li>Las respuestas no se guardaron correctamente</li>
+                <li>Error en el cálculo de puntuaciones</li>
+                <li>Problema de persistencia de datos</li>
+              </ul>
+              <div className="text-xs bg-red-100 p-3 rounded font-mono">
+                <strong>Debug Info:</strong><br/>
+                Respuestas guardadas: {results.responses.length}<br/>
+                Perfil: {results.profile.name} - {results.profile.university}
+              </div>
+              <p className="text-sm text-red-600 mt-3">
+                💡 <strong>Sugerencia:</strong> Abre la consola del navegador (F12) para ver más detalles del error.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Action Buttons */}
         <div className="flex flex-wrap gap-4 justify-center">
           <Button onClick={exportToPDF} className="flex items-center space-x-2">
