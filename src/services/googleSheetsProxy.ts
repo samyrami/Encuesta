@@ -17,13 +17,17 @@ class GoogleSheetsProxyService {
   private sheetId = '1wjNTHAdEN4gCF2WP00dqKTu3Vu9UHB360aKMa0DCIM8';
 
   constructor() {
-    // Try to load webhook URL from environment or localStorage
-    this.webhookUrl = import.meta.env.VITE_SHEETS_WEBHOOK_URL || localStorage.getItem('sheets_webhook_url');
+    // Priority order: Environment Apps Script URL > Environment Webhook > Local Storage
+    const appsScriptUrl = import.meta.env.VITE_APPS_SCRIPT_URL;
+    const webhookUrl = import.meta.env.VITE_SHEETS_WEBHOOK_URL;
+    const storedWebhook = localStorage.getItem('sheets_webhook_url');
+    const storedAppsScript = localStorage.getItem('apps_script_url');
     
-    // Load Apps Script URL if configured
-    const appsScriptUrl = import.meta.env.VITE_APPS_SCRIPT_URL || localStorage.getItem('apps_script_url');
-    if (appsScriptUrl) {
-      this.webhookUrl = appsScriptUrl;
+    // Use Apps Script URL with highest priority
+    this.webhookUrl = appsScriptUrl || webhookUrl || storedAppsScript || storedWebhook;
+    
+    if (this.webhookUrl) {
+      console.log('📄 Google Apps Script configurado:', this.webhookUrl.substring(0, 50) + '...');
     }
   }
 
@@ -32,28 +36,48 @@ class GoogleSheetsProxyService {
       console.log('📄 Guardando respuesta via webhook...');
       console.log('📋 Datos a guardar:', data);
 
-      // If we have webhook URL, use it
+      // If we have webhook URL (Google Apps Script), use it with no-cors
       if (this.webhookUrl) {
-        console.log('🔗 Usando webhook URL:', this.webhookUrl);
+        console.log('🔗 Usando Google Apps Script URL:', this.webhookUrl);
+        
+        const payload = {
+          action: 'saveResponse',
+          data: {
+            timestamp: data.timestamp,
+            name: data.name,
+            university: data.university,
+            overallScore: data.overallScore.toFixed(1),
+            ambientalScore: data.ambientalScore.toFixed(1),
+            socialScore: data.socialScore.toFixed(1),
+            gobernanzaScore: data.gobernanzaScore.toFixed(1),
+            responseCount: data.responses.length.toString(),
+            strengths: data.strengths.join('; '),
+            weaknesses: data.weaknesses.join('; '),
+            recommendations: data.recommendations.slice(0, 5).join('; '),
+            rawResponses: JSON.stringify(data.responses),
+            sessionId: `session_${Date.now()}`
+          }
+        };
         
         const response = await fetch(this.webhookUrl, {
           method: 'POST',
+          mode: 'no-cors', // This is key for Google Apps Script!
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify(data)
+          body: JSON.stringify(payload)
         });
 
-        if (response.ok) {
-          console.log('✅ Datos enviados a webhook exitosamente');
-          return true;
-        } else {
-          console.warn('⚠️ Error en webhook:', response.status, response.statusText);
-        }
+        // With no-cors, we can't read response status, so we assume it worked
+        console.log('✅ Datos enviados a Google Apps Script exitosamente');
+        console.log('ℹ️ Nota: Con no-cors no podemos verificar el estado, pero se envió la petición');
+        return true;
       }
 
-      // Fallback: Try Google Apps Script Web App
-      return await this.saveViaAppsScript(data);
+      // If no webhook URL configured, save locally
+      console.log('⚠️ No hay webhook URL configurada, guardando solo localmente');
+      this.saveToLocalBackup(data);
+      return false;
 
     } catch (error) {
       console.error('❌ Error en proxy service:', error);
@@ -143,7 +167,10 @@ class GoogleSheetsProxyService {
 
   setWebhookUrl(url: string): void {
     this.webhookUrl = url;
-    localStorage.setItem('sheets_webhook_url', url);
+    // Store as apps_script_url for better identification
+    localStorage.setItem('apps_script_url', url);
+    localStorage.setItem('sheets_webhook_url', url); // Keep for compatibility
+    console.log('💾 Google Apps Script URL guardada');
   }
 
   isConfigured(): boolean {
