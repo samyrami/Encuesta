@@ -18,6 +18,7 @@ export const GoogleSheetsStatus = () => {
   const [apiKey, setApiKey] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isTestingConnection, setIsTestingConnection] = useState(false);
+  const [isTestingSave, setIsTestingSave] = useState(false);
 
   const handleSaveApiKey = async () => {
     if (!apiKey.trim()) return;
@@ -42,6 +43,24 @@ export const GoogleSheetsStatus = () => {
       alert('Error al probar la conexión. Verifica que la API key sea válida.');
     } finally {
       setIsTestingConnection(false);
+    }
+  };
+
+  const handleTestSave = async () => {
+    try {
+      setIsTestingSave(true);
+      const success = await googleSheetsService.testSaveResponse();
+      
+      if (success) {
+        alert('\u2705 \u00a1Prueba exitosa! Se guard\u00f3 una respuesta de prueba en tu Google Sheet.');
+      } else {
+        alert('\u274c Error: No se pudo guardar la respuesta de prueba. Revisa los logs de la consola para m\u00e1s detalles.');
+      }
+    } catch (error) {
+      console.error('Error testing save:', error);
+      alert('\u274c Error al probar el guardado. Revisa la consola para m\u00e1s detalles.');
+    } finally {
+      setIsTestingSave(false);
     }
   };
 
@@ -146,13 +165,23 @@ export const GoogleSheetsStatus = () => {
               <p className="mt-1">Si necesitas cambiar la configuración, recarga la página.</p>
             </div>
             
-            <Button 
-              variant="outline" 
-              onClick={() => setIsDialogOpen(false)}
-              className="w-full"
-            >
-              Cerrar
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                onClick={handleTestSave}
+                disabled={isTestingSave}
+                className="flex-1"
+              >
+                {isTestingSave ? 'Probando...' : 'Probar Guardado'}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => setIsDialogOpen(false)}
+                className="flex-1"
+              >
+                Cerrar
+              </Button>
+            </div>
           </div>
         )}
       </DialogContent>

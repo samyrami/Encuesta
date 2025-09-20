@@ -68,10 +68,97 @@ export const showResultsDebugInfo = () => {
   console.groupEnd();
 };
 
+// Google Sheets debugging functions
+export const testGoogleSheetsIntegration = async () => {
+  console.group('🧪 Testing Google Sheets Integration');
+  
+  try {
+    // Import the service dynamically to avoid circular imports
+    const { googleSheetsService } = await import('@/services/googleSheetsService');
+    
+    // Check configuration
+    const status = googleSheetsService.getStatus();
+    console.log('📄 Current Status:', status);
+    
+    if (!status.isConfigured) {
+      console.error('❌ Google Sheets not configured. Please set API key first.');
+      console.groupEnd();
+      return false;
+    }
+    
+    // Test connection first
+    console.log('🔍 Testing connection...');
+    const connectionTest = await googleSheetsService.testConnection();
+    console.log('🔗 Connection test result:', connectionTest);
+    
+    if (!connectionTest) {
+      console.error('❌ Connection test failed.');
+      console.groupEnd();
+      return false;
+    }
+    
+    // Test saving data
+    console.log('💾 Testing data save...');
+    const saveTest = await googleSheetsService.testSaveResponse();
+    console.log('💾 Save test result:', saveTest);
+    
+    if (saveTest) {
+      console.log('✅ Google Sheets integration is working correctly!');
+      console.groupEnd();
+      return true;
+    } else {
+      console.error('❌ Save test failed.');
+      console.groupEnd();
+      return false;
+    }
+    
+  } catch (error) {
+    console.error('❌ Error during Google Sheets test:', error);
+    console.groupEnd();
+    return false;
+  }
+};
+
+export const getGoogleSheetsBackup = async () => {
+  console.log('💾 Getting Google Sheets backup data...');
+  try {
+    const { googleSheetsService } = await import('@/services/googleSheetsService');
+    const backupData = await googleSheetsService.getBackupData();
+    console.log('📋 Backup data found:', backupData);
+    return backupData;
+  } catch (error) {
+    console.error('❌ Error getting backup data:', error);
+    return [];
+  }
+};
+
+export const clearGoogleSheetsData = () => {
+  console.log('🗑️ Clearing Google Sheets data...');
+  localStorage.removeItem('google_sheets_api_key');
+  localStorage.removeItem('sheets_backup');
+  console.log('✅ Google Sheets data cleared.');
+};
+
+export const showDebugCommands = () => {
+  console.log('🧠 Available debug commands:');
+  console.log('  debugSustainabilityApp() - Show current app state');
+  console.log('  clearAllSustainabilityData() - Clear all stored data');
+  console.log('  recalculateResults() - Force recalculate results');
+  console.log('  showResultsDebugInfo() - Show detailed results info');
+  console.log('  testGoogleSheetsIntegration() - Test Google Sheets functionality');
+  console.log('  getGoogleSheetsBackup() - Show backup data');
+  console.log('  clearGoogleSheetsData() - Clear Google Sheets configuration');
+  console.log('  showDebugCommands() - Show this help');
+};
+
 // Add to window for browser console access
 if (typeof window !== 'undefined') {
   (window as any).debugSustainabilityApp = debugSustainabilityApp;
   (window as any).clearAllSustainabilityData = clearAllSustainabilityData;
   (window as any).recalculateResults = recalculateResults;
   (window as any).showResultsDebugInfo = showResultsDebugInfo;
+  (window as any).testGoogleSheetsIntegration = testGoogleSheetsIntegration;
+  (window as any).getGoogleSheetsBackup = getGoogleSheetsBackup;
+  (window as any).clearGoogleSheetsData = clearGoogleSheetsData;
+  (window as any).showDebugCommands = showDebugCommands;
 }
