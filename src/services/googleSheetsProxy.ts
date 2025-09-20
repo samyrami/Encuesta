@@ -19,6 +19,12 @@ class GoogleSheetsProxyService {
   constructor() {
     // Try to load webhook URL from environment or localStorage
     this.webhookUrl = import.meta.env.VITE_SHEETS_WEBHOOK_URL || localStorage.getItem('sheets_webhook_url');
+    
+    // Load Apps Script URL if configured
+    const appsScriptUrl = import.meta.env.VITE_APPS_SCRIPT_URL || localStorage.getItem('apps_script_url');
+    if (appsScriptUrl) {
+      this.webhookUrl = appsScriptUrl;
+    }
   }
 
   async saveResponse(data: SurveyResponse): Promise<boolean> {
