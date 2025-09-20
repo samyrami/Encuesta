@@ -108,10 +108,12 @@ export const SustainabilityAssistant = () => {
 
       case 'chat':
         return results ? (
-          <SustainabilityChat
-            results={results}
-            onBack={backToResults}
-          />
+          <div className="h-full">
+            <SustainabilityChat
+              results={results}
+              onBack={backToResults}
+            />
+          </div>
         ) : null;
 
       default:
@@ -211,7 +213,7 @@ export const SustainabilityAssistant = () => {
             </div>
           </div>
 
-          <div className={`${state.currentStep === 'results' ? 'min-h-[600px]' : 'h-[600px]'} flex flex-col bg-background/95 ${state.currentStep === 'results' ? 'overflow-y-auto' : ''}`}>
+          <div className={`${state.currentStep === 'results' ? 'min-h-[600px]' : state.currentStep === 'chat' ? 'h-[calc(100vh-200px)]' : 'h-[600px]'} flex flex-col bg-background/95 ${state.currentStep === 'results' ? 'overflow-y-auto' : ''}`}>
             {renderContent()}
           </div>
         </div>

@@ -448,8 +448,8 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
 
   return (
     <div className="h-full flex flex-col">
-      <Card className="flex-1 flex flex-col">
-        <CardHeader className="bg-gradient-to-r from-primary to-primary-light">
+      <Card className="h-full flex flex-col">
+        <CardHeader className="bg-gradient-to-r from-primary to-primary-light flex-shrink-0">
           <div className="flex items-center space-x-4">
             <Button 
               variant="ghost" 
@@ -485,9 +485,9 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
           </div>
         </CardHeader>
 
-        <CardContent className="flex-1 flex flex-col p-0">
-          <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-            <div className="space-y-4">
+        <CardContent className="flex-1 flex flex-col p-0 min-h-0">
+          <ScrollArea ref={scrollAreaRef} className="flex-1 p-4 min-h-0">
+            <div className="space-y-4 pb-4">
               {messages.map((message) => (
                 <div 
                   key={message.id} 
@@ -551,7 +551,7 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
 
           {/* Suggested Questions */}
           {messages.length <= 1 && (
-            <div className="p-4 border-t">
+            <div className="flex-shrink-0 p-4 border-t bg-background">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-2">
                   <Lightbulb className="w-4 h-4 text-muted-foreground" />
@@ -594,7 +594,7 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
           )}
 
           {/* Input Area */}
-          <div className="p-4 bg-background">
+          <div className="flex-shrink-0 p-4 bg-background border-t">
             <div className="flex space-x-2">
               <Input
                 value={input}
@@ -608,6 +608,7 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
                 onClick={handleSendMessage} 
                 disabled={!input.trim() || isLoading}
                 size="icon"
+                className="flex-shrink-0"
               >
                 <Send className="w-4 h-4" />
               </Button>
