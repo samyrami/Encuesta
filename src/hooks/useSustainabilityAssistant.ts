@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { sustainabilityQuestions, UserProfile, SustainabilityResponse, SustainabilityResults } from '@/data/sustainability-questionnaire.v2';
 import { universities } from '@/data/universities';
 import { persistAssistantData, loadAssistantData, clearAssistantData, hasPersistedData } from '@/utils/persistence';
-import { googleSheetsService, SurveyResponse } from '@/services/googleSheetsService';
+import { googleSheetsService, SurveyResponse } from '@/services/googleSheetsProxy';
 
 export interface ChatMessage {
   id: string;
