@@ -3,7 +3,7 @@ export const OPENAI_CONFIG = {
   // La API key se obtiene desde variables de entorno
   API_KEY: import.meta.env.VITE_OPENAI_API_KEY || '',
   MODEL: 'gpt-3.5-turbo',
-  MAX_TOKENS: 1000,
+  MAX_TOKENS: 1500,
   TEMPERATURE: 0.7,
   BASE_URL: 'https://api.openai.com/v1'
 };

@@ -14,17 +14,24 @@ interface SustainabilityResultsProps {
 }
 
 export const SustainabilityResults = ({ results, onContinueChat, onRestart }: SustainabilityResultsProps) => {
-  const getScoreColor = (score: number) => {
+  const getScoreColor = (score: number | undefined | null) => {
+    if (!score && score !== 0) return 'text-gray-500';
     if (score >= 4.0) return 'text-green-600';
     if (score >= 3.0) return 'text-yellow-600';
     return 'text-red-600';
   };
 
-  const getScoreLabel = (score: number) => {
+  const getScoreLabel = (score: number | undefined | null) => {
+    if (!score && score !== 0) return 'Sin evaluar';
     if (score >= 4.0) return 'Excelente';
     if (score >= 3.0) return 'Bueno';
     if (score >= 2.0) return 'Regular';
     return 'Requiere Mejora';
+  };
+
+  // Safe score display function
+  const displayScore = (score: number | undefined | null) => {
+    return (score ?? 0).toFixed(1);
   };
 
   const exportToPDF = () => {
@@ -42,11 +49,11 @@ Nombre: ${results.profile.name}
 Universidad: ${results.profile.university}
 Fecha: ${results.completedAt.toLocaleDateString()}
 
-PUNTUACIÓN GENERAL: ${results.overallScore.toFixed(1)}/5.0 - ${getScoreLabel(results.overallScore)}
+PUNTUACIÓN GENERAL: ${displayScore(results.overallScore)}/5.0 - ${getScoreLabel(results.overallScore)}
 
 RESULTADOS POR DIMENSIÓN:
 
-🌍 AMBIENTAL: ${results.dimensions.ambiental.score.toFixed(1)}/5.0
+🌍 AMBIENTAL: ${displayScore(results.dimensions.ambiental.score)}/5.0
 Fortalezas (${results.dimensions.ambiental.strengths.length}):
 ${results.dimensions.ambiental.strengths.map(s => `• ${s}`).join('\n')}
 
@@ -56,7 +63,7 @@ ${results.dimensions.ambiental.weaknesses.map(w => `• ${w}`).join('\n')}
 Recomendaciones principales:
 ${results.dimensions.ambiental.recommendations.slice(0, 3).map(r => `• ${r}`).join('\n')}
 
-👥 SOCIAL: ${results.dimensions.social.score.toFixed(1)}/5.0
+👥 SOCIAL: ${displayScore(results.dimensions.social.score)}/5.0
 Fortalezas (${results.dimensions.social.strengths.length}):
 ${results.dimensions.social.strengths.map(s => `• ${s}`).join('\n')}
 
@@ -66,7 +73,7 @@ ${results.dimensions.social.weaknesses.map(w => `• ${w}`).join('\n')}
 Recomendaciones principales:
 ${results.dimensions.social.recommendations.slice(0, 3).map(r => `• ${r}`).join('\n')}
 
-🏛️ GOBERNANZA: ${results.dimensions.gobernanza.score.toFixed(1)}/5.0
+🏛️ GOBERNANZA: ${displayScore(results.dimensions.gobernanza.score)}/5.0
 Fortalezas (${results.dimensions.gobernanza.strengths.length}):
 ${results.dimensions.gobernanza.strengths.map(s => `• ${s}`).join('\n')}
 
@@ -119,7 +126,7 @@ Universidad de La Sabana © 2024
             <CardTitle className="flex items-center justify-between">
               <span>Puntuación General</span>
               <Badge variant="secondary" className={`text-lg px-3 py-1 ${getScoreColor(results.overallScore)}`}>
-                {results.overallScore.toFixed(1)}/5.0
+                {displayScore(results.overallScore)}/5.0
               </Badge>
             </CardTitle>
           </CardHeader>
@@ -131,7 +138,7 @@ Universidad de La Sabana © 2024
                   {getScoreLabel(results.overallScore)}
                 </span>
               </div>
-              <Progress value={results.overallScore * 20} className="h-3" />
+              <Progress value={(results.overallScore ?? 0) * 20} className="h-3" />
             </div>
           </CardContent>
         </Card>
@@ -146,11 +153,11 @@ Universidad de La Sabana © 2024
                 <span>🌍 Ambiental</span>
               </CardTitle>
               <div className="text-2xl font-bold text-green-600">
-                {results.dimensions.ambiental.score.toFixed(1)}/5.0
+                {displayScore(results.dimensions.ambiental.score)}/5.0
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Progress value={results.dimensions.ambiental.score * 20} className="h-2" />
+              <Progress value={(results.dimensions.ambiental.score ?? 0) * 20} className="h-2" />
               
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
@@ -178,11 +185,11 @@ Universidad de La Sabana © 2024
                 <span>👥 Social</span>
               </CardTitle>
               <div className="text-2xl font-bold text-blue-600">
-                {results.dimensions.social.score.toFixed(1)}/5.0
+                {displayScore(results.dimensions.social.score)}/5.0
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Progress value={results.dimensions.social.score * 20} className="h-2" />
+              <Progress value={(results.dimensions.social.score ?? 0) * 20} className="h-2" />
               
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
@@ -210,11 +217,11 @@ Universidad de La Sabana © 2024
                 <span>🏛️ Gobernanza</span>
               </CardTitle>
               <div className="text-2xl font-bold text-purple-600">
-                {results.dimensions.gobernanza.score.toFixed(1)}/5.0
+                {displayScore(results.dimensions.gobernanza.score)}/5.0
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Progress value={results.dimensions.gobernanza.score * 20} className="h-2" />
+              <Progress value={(results.dimensions.gobernanza.score ?? 0) * 20} className="h-2" />
               
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">

@@ -317,10 +317,27 @@ Selecciona de la lista la universidad que deseas evaluar:`,
 
     console.log(`📊 ${dimension}: ${dimensionResponses.length} respuestas de ${dimensionQuestions.length} preguntas`);
 
-    const totalScore = dimensionResponses.reduce((sum, r) => sum + r.score, 0);
-    const averageScore = dimensionResponses.length > 0 ? totalScore / dimensionResponses.length : 0;
+    if (dimensionResponses.length === 0) {
+      console.log(`⚠️ ${dimension}: Sin respuestas, devolviendo valores por defecto`);
+      return {
+        score: 0,
+        strengths: [],
+        weaknesses: [],
+        recommendations: [
+          `Complete la evaluación de ${dimension.toLowerCase()} para obtener recomendaciones específicas.`
+        ]
+      };
+    }
+
+    const totalScore = dimensionResponses.reduce((sum, r) => {
+      const score = r.score || 0;
+      console.log(`📊 ${dimension} - respuesta ${r.questionId}: ${score}`);
+      return sum + score;
+    }, 0);
     
-    console.log(`📊 ${dimension}: total=${totalScore}, promedio=${averageScore}`);
+    const averageScore = totalScore / dimensionResponses.length;
+    
+    console.log(`📊 ${dimension}: total=${totalScore}, promedio=${averageScore.toFixed(2)}`);
 
     const strengths: string[] = [];
     const weaknesses: string[] = [];
@@ -328,13 +345,20 @@ Selecciona de la lista la universidad que deseas evaluar:`,
 
     dimensionResponses.forEach(response => {
       const question = sustainabilityQuestions.find(q => q.id === response.questionId);
-      if (!question) return;
+      if (!question) {
+        console.warn(`⚠️ Pregunta no encontrada: ${response.questionId}`);
+        return;
+      }
 
-      if (response.score >= 4) {
+      const score = response.score || 0;
+      if (score >= 4) {
         strengths.push(question.pregunta);
-      } else if (response.score <= 2) {
+      } else if (score <= 2) {
         weaknesses.push(question.pregunta);
-        recommendations.push(question.recommendations[response.score.toString()]);
+        const recommendation = question.recommendations[score.toString()];
+        if (recommendation) {
+          recommendations.push(recommendation);
+        }
       }
     });
 
@@ -342,7 +366,9 @@ Selecciona de la lista la universidad que deseas evaluar:`,
       score: averageScore,
       strengths,
       weaknesses,
-      recommendations
+      recommendations: recommendations.length > 0 ? recommendations : [
+        `Continúe fortaleciendo las prácticas en ${dimension.toLowerCase()} según las recomendaciones específicas.`
+      ]
     };
   }, [state.responses]);
 
@@ -385,6 +411,7 @@ Selecciona de la lista la universidad que deseas evaluar:`,
       handleQuestionAnswer, generateResults, addMessage]);
 
   const restartEvaluation = useCallback(() => {
+    console.log('🔁 Reiniciando evaluación completa...');
     clearAssistantData();
     setMessages([]);
     setState({
@@ -397,7 +424,9 @@ Selecciona de la lista la universidad que deseas evaluar:`,
       results: null
     });
     setHasLoadedFromStorage(true); // Evitar que se carguen datos antiguos
-    initializeBot();
+    setTimeout(() => {
+      initializeBot();
+    }, 100);
   }, [initializeBot]);
 
   const continueToChat = useCallback(() => {

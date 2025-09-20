@@ -4,14 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, Send, Bot, User, Lightbulb } from 'lucide-react';
+import { ArrowLeft, Send, Bot, User, Lightbulb, AlertCircle, Settings } from 'lucide-react';
 import { SustainabilityResults } from '@/data/sustainability-questionnaire.v2';
+import { openAIService, OpenAIMessage } from '@/services/openaiService';
+import { isOpenAIConfigured } from '@/config/openai';
 
 interface ChatMessage {
   id: string;
   type: 'user' | 'bot';
   content: string;
   timestamp: Date;
+  isAI?: boolean;
 }
 
 interface SustainabilityChatProps {
@@ -23,9 +26,13 @@ export const SustainabilityChat = ({ results, onBack }: SustainabilityChatProps)
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isConfigured, setIsConfigured] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Verificar configuración de OpenAI
+    setIsConfigured(isOpenAIConfigured());
+    
     // Mensaje de bienvenida del chat especializado
     const welcomeMessage: ChatMessage = {
       id: `welcome-${Date.now()}`,
@@ -40,12 +47,12 @@ Ahora estás en el **Chat Especializado en Sostenibilidad Universitaria**. Aquí
 🎯 **Solicitar ejemplos** de mejores prácticas universitarias
 🏛️ **Explorar marcos** de sostenibilidad internacionales
 
-**Tu puntuación general:** ${results.overallScore.toFixed(1)}/5.0
-- 🌍 Ambiental: ${results.dimensions.ambiental.score.toFixed(1)}/5.0
-- 👥 Social: ${results.dimensions.social.score.toFixed(1)}/5.0  
-- 🏛️ Gobernanza: ${results.dimensions.gobernanza.score.toFixed(1)}/5.0
+**Tu puntuación general:** ${(results.overallScore || 0).toFixed(1)}/5.0
+- 🌍 Ambiental: ${(results.dimensions.ambiental.score || 0).toFixed(1)}/5.0
+- 👥 Social: ${(results.dimensions.social.score || 0).toFixed(1)}/5.0  
+- 🏛️ Gobernanza: ${(results.dimensions.gobernanza.score || 0).toFixed(1)}/5.0
 
-¿En qué te gustaría profundizar?`,
+${isConfigured ? '¿En qué te gustaría profundizar?' : '⚠️ **Nota:** Para obtener respuestas personalizadas de IA, configura tu API key de OpenAI.'}`,
       timestamp: new Date()
     };
 
@@ -76,22 +83,78 @@ Ahora estás en el **Chat Especializado en Sostenibilidad Universitaria**. Aquí
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input.trim();
     setInput('');
     setIsLoading(true);
 
-    // Simulate AI processing
-    setTimeout(() => {
-      const botResponse = generateBotResponse(input.trim());
+    try {
+      let botResponse: string;
+      
+      if (isConfigured) {
+        // Usar OpenAI para respuestas inteligentes
+        botResponse = await generateOpenAIResponse(currentInput);
+      } else {
+        // Usar respuestas predefinidas como fallback
+        botResponse = generateBotResponse(currentInput);
+      }
+
       const botMessage: ChatMessage = {
         id: `bot-${Date.now()}`,
         type: 'bot',
         content: botResponse,
-        timestamp: new Date()
+        timestamp: new Date(),
+        isAI: isConfigured
       };
 
       setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessage: ChatMessage = {
+        id: `error-${Date.now()}`,
+        type: 'bot',
+        content: 'Lo siento, hubo un error al procesar tu mensaje. Por favor, intenta de nuevo.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsLoading(false);
-    }, 1000 + Math.random() * 2000);
+    }
+  };
+
+  const generateOpenAIResponse = async (userInput: string): Promise<string> => {
+    try {
+      const universityContext = `
+Información de la evaluación de sostenibilidad universitaria:
+- Universidad: ${results.profile.university}
+- Evaluado por: ${results.profile.name}
+- Puntuación general: ${(results.overallScore || 0).toFixed(1)}/5.0
+- Dimensión Ambiental: ${(results.dimensions.ambiental.score || 0).toFixed(1)}/5.0
+  * Fortalezas: ${results.dimensions.ambiental.strengths.slice(0, 3).join(', ')}
+  * Áreas de mejora: ${results.dimensions.ambiental.weaknesses.slice(0, 3).join(', ')}
+- Dimensión Social: ${(results.dimensions.social.score || 0).toFixed(1)}/5.0
+  * Fortalezas: ${results.dimensions.social.strengths.slice(0, 3).join(', ')}
+  * Áreas de mejora: ${results.dimensions.social.weaknesses.slice(0, 3).join(', ')}
+- Dimensión Gobernanza: ${(results.dimensions.gobernanza.score || 0).toFixed(1)}/5.0
+  * Fortalezas: ${results.dimensions.gobernanza.strengths.slice(0, 3).join(', ')}
+  * Áreas de mejora: ${results.dimensions.gobernanza.weaknesses.slice(0, 3).join(', ')}
+
+Eres un consultor especializado en sostenibilidad universitaria. Responde de manera práctica y específica, usando los datos de la evaluación para personalizar tus recomendaciones.
+      `;
+
+      const openAIMessages: OpenAIMessage[] = [
+        {
+          role: 'user',
+          content: userInput
+        }
+      ];
+
+      const response = await openAIService.sendMessage(openAIMessages, universityContext);
+      return response.content;
+    } catch (error) {
+      console.error('Error with OpenAI:', error);
+      // Fallback a respuesta predefinida en caso de error
+      return generateBotResponse(userInput) + '\n\n*Nota: Respuesta generada localmente debido a un error con la IA.*';
+    }
   };
 
   const generateBotResponse = (userInput: string): string => {
@@ -308,6 +371,74 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
     }
   };
 
+  const configureOpenAI = () => {
+    const userKey = prompt(
+      'Para habilitar respuestas personalizadas de IA, ingresa tu API key de OpenAI:\n\n' +
+      '(Esta clave se guardará localmente en tu navegador)\n\n' +
+      '¿No tienes API key? Obtén una gratis en: https://platform.openai.com/api-keys'
+    );
+    
+    if (userKey && userKey.trim()) {
+      localStorage.setItem('openai_api_key', userKey.trim());
+      setIsConfigured(true);
+      
+      // Agregar mensaje confirmando la configuración
+      const configMessage: ChatMessage = {
+        id: `config-${Date.now()}`,
+        type: 'bot',
+        content: '🎉 **¡Configuración completada!**\n\nAhora puedes obtener respuestas personalizadas y contextualizadas usando inteligencia artificial. Las respuestas serán específicas para tu evaluación y universidad.\n\n¿En qué te gustaría que te ayude?',
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, configMessage]);
+    }
+  };
+
+  const handleSuggestedQuestion = async (question: string) => {
+    if (isLoading) return;
+    
+    const userMessage: ChatMessage = {
+      id: `user-${Date.now()}`,
+      type: 'user',
+      content: question,
+      timestamp: new Date()
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      let botResponse: string;
+      
+      if (isConfigured) {
+        botResponse = await generateOpenAIResponse(question);
+      } else {
+        botResponse = generateBotResponse(question);
+      }
+
+      const botMessage: ChatMessage = {
+        id: `bot-${Date.now()}`,
+        type: 'bot',
+        content: botResponse,
+        timestamp: new Date(),
+        isAI: isConfigured
+      };
+
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      console.error('Error with suggested question:', error);
+      const errorMessage: ChatMessage = {
+        id: `error-${Date.now()}`,
+        type: 'bot',
+        content: 'Lo siento, hubo un error al procesar tu pregunta. Por favor, intenta de nuevo.',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const suggestedQuestions = [
     "¿Cómo mejorar mi dimensión más débil?",
     "Dame ejemplos de mejores prácticas",
@@ -330,14 +461,26 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
             </Button>
             <div className="flex items-center space-x-2">
               <Bot className="w-6 h-6 text-primary-foreground" />
-              <div>
+              <div className="flex-1">
                 <CardTitle className="text-primary-foreground text-lg">
                   Chat Especializado en Sostenibilidad
                 </CardTitle>
                 <p className="text-primary-foreground/80 text-sm">
                   {results.profile.university} • Evaluación completada
+                  {isConfigured ? ' • 🤖 IA activa' : ' • 💡 IA disponible'}
                 </p>
               </div>
+              {!isConfigured && (
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={configureOpenAI}
+                  className="flex items-center gap-1"
+                >
+                  <Settings className="w-3 h-3" />
+                  Activar IA
+                </Button>
+              )}
             </div>
           </div>
         </CardHeader>
@@ -366,10 +509,16 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
                     <div className="whitespace-pre-wrap text-sm">
                       {message.content}
                     </div>
-                    <div className={`text-xs mt-2 ${
+                    <div className={`text-xs mt-2 flex items-center justify-between ${
                       message.type === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'
                     }`}>
-                      {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      <span>{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      {message.type === 'bot' && message.isAI && (
+                        <span className="flex items-center gap-1 text-blue-600">
+                          <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                          IA
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -403,9 +552,22 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
           {/* Suggested Questions */}
           {messages.length <= 1 && (
             <div className="p-4 border-t">
-              <div className="flex items-center space-x-2 mb-3">
-                <Lightbulb className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-muted-foreground">Preguntas sugeridas:</span>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <Lightbulb className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-muted-foreground">Preguntas sugeridas:</span>
+                </div>
+                {!isConfigured && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={configureOpenAI}
+                    className="text-xs flex items-center gap-1 text-blue-600 hover:text-blue-800"
+                  >
+                    <Settings className="w-3 h-3" />
+                    Activar IA personalizada
+                  </Button>
+                )}
               </div>
               <div className="flex flex-wrap gap-2">
                 {suggestedQuestions.map((question, index) => (
@@ -413,13 +575,21 @@ Como especialista en sostenibilidad universitaria, puedo ayudarte con:
                     key={index}
                     variant="outline"
                     size="sm"
-                    onClick={() => setInput(question)}
-                    className="text-xs"
+                    onClick={() => handleSuggestedQuestion(question)}
+                    disabled={isLoading}
+                    className="text-xs hover:bg-primary/10"
                   >
                     {question}
                   </Button>
                 ))}
               </div>
+              {!isConfigured && (
+                <div className="mt-3 p-2 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-xs text-blue-700">
+                    💡 <strong>Tip:</strong> Activa la IA para obtener respuestas específicas y personalizadas basadas en tu evaluación de sostenibilidad.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

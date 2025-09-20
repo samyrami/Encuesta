@@ -72,19 +72,38 @@ export const SustainabilityAssistant = () => {
   const renderContent = () => {
     switch (state.currentStep) {
       case 'results':
-        return results ? (
+        // Safety check for results data integrity
+        if (!results || !results.dimensions || 
+            typeof results.overallScore !== 'number' ||
+            !results.dimensions.ambiental || 
+            !results.dimensions.social || 
+            !results.dimensions.gobernanza) {
+          console.error('⚠️ Datos de resultados inválidos o corruptos:', results);
+          return (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-center space-y-4">
+                <div className="text-red-500 text-6xl">⚠️</div>
+                <h2 className="text-xl font-semibold text-red-600">Error en los Resultados</h2>
+                <p className="text-muted-foreground max-w-md">
+                  Hubo un problema con los datos de la evaluación. Por favor, reinicia la evaluación para continuar.
+                </p>
+                <button 
+                  onClick={restartEvaluation}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+                >
+                  Reiniciar Evaluación
+                </button>
+              </div>
+            </div>
+          );
+        }
+        
+        return (
           <SustainabilityResults
             results={results}
             onContinueChat={continueToChat}
             onRestart={restartEvaluation}
           />
-        ) : (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-muted-foreground">Generando diagnóstico de sostenibilidad...</p>
-            </div>
-          </div>
         );
 
       case 'chat':
