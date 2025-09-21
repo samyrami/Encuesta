@@ -68,27 +68,27 @@ export const showResultsDebugInfo = () => {
   console.groupEnd();
 };
 
-// Google Sheets debugging functions
-export const testGoogleSheetsIntegration = async () => {
-  console.group('🧪 Testing Google Sheets Integration');
+// Supabase debugging functions
+export const testSupabaseIntegration = async () => {
+  console.group('🧪 Testing Supabase Integration');
   
   try {
     // Import the service dynamically to avoid circular imports
-    const { googleSheetsService } = await import('@/services/googleSheetsService');
+    const { supabaseService } = await import('@/services/supabaseService');
     
     // Check configuration
-    const status = googleSheetsService.getStatus();
+    const status = supabaseService.getStatus();
     console.log('📄 Current Status:', status);
     
     if (!status.isConfigured) {
-      console.error('❌ Google Sheets not configured. Please set API key first.');
+      console.error('❌ Supabase not configured properly.');
       console.groupEnd();
       return false;
     }
     
     // Test connection first
     console.log('🔍 Testing connection...');
-    const connectionTest = await googleSheetsService.testConnection();
+    const connectionTest = await supabaseService.testConnection();
     console.log('🔗 Connection test result:', connectionTest);
     
     if (!connectionTest) {
@@ -99,11 +99,11 @@ export const testGoogleSheetsIntegration = async () => {
     
     // Test saving data
     console.log('💾 Testing data save...');
-    const saveTest = await googleSheetsService.testSaveResponse();
+    const saveTest = await supabaseService.testSaveResponse();
     console.log('💾 Save test result:', saveTest);
     
     if (saveTest) {
-      console.log('✅ Google Sheets integration is working correctly!');
+      console.log('✅ Supabase integration is working correctly!');
       console.groupEnd();
       return true;
     } else {
@@ -113,17 +113,17 @@ export const testGoogleSheetsIntegration = async () => {
     }
     
   } catch (error) {
-    console.error('❌ Error during Google Sheets test:', error);
+    console.error('❌ Error during Supabase test:', error);
     console.groupEnd();
     return false;
   }
 };
 
-export const getGoogleSheetsBackup = async () => {
-  console.log('💾 Getting Google Sheets backup data...');
+export const getSupabaseBackup = async () => {
+  console.log('💾 Getting Supabase backup data...');
   try {
-    const { googleSheetsService } = await import('@/services/googleSheetsService');
-    const backupData = await googleSheetsService.getBackupData();
+    const { supabaseService } = await import('@/services/supabaseService');
+    const backupData = await supabaseService.getBackupData();
     console.log('📋 Backup data found:', backupData);
     return backupData;
   } catch (error) {
@@ -132,11 +132,24 @@ export const getGoogleSheetsBackup = async () => {
   }
 };
 
-export const clearGoogleSheetsData = () => {
-  console.log('🗑️ Clearing Google Sheets data...');
-  localStorage.removeItem('google_sheets_api_key');
-  localStorage.removeItem('sheets_backup');
-  console.log('✅ Google Sheets data cleared.');
+export const clearSupabaseData = () => {
+  console.log('🗑️ Clearing Supabase backup data...');
+  localStorage.removeItem('supabase_backup');
+  localStorage.removeItem('sheets_backup'); // Also clear old Google Sheets backup
+  console.log('✅ Supabase data cleared.');
+};
+
+export const migrateFromGoogleSheets = async () => {
+  console.log('🔄 Starting migration from Google Sheets to Supabase...');
+  try {
+    const { supabaseService } = await import('@/services/supabaseService');
+    const success = await supabaseService.migrateFromGoogleSheetsBackup();
+    console.log('✅ Migration result:', success);
+    return success;
+  } catch (error) {
+    console.error('❌ Migration error:', error);
+    return false;
+  }
 };
 
 export const showDebugCommands = () => {
@@ -145,9 +158,10 @@ export const showDebugCommands = () => {
   console.log('  clearAllSustainabilityData() - Clear all stored data');
   console.log('  recalculateResults() - Force recalculate results');
   console.log('  showResultsDebugInfo() - Show detailed results info');
-  console.log('  testGoogleSheetsIntegration() - Test Google Sheets functionality');
-  console.log('  getGoogleSheetsBackup() - Show backup data');
-  console.log('  clearGoogleSheetsData() - Clear Google Sheets configuration');
+  console.log('  testSupabaseIntegration() - Test Supabase functionality');
+  console.log('  getSupabaseBackup() - Show backup data');
+  console.log('  clearSupabaseData() - Clear Supabase backup data');
+  console.log('  migrateFromGoogleSheets() - Migrate Google Sheets data to Supabase');
   console.log('  showDebugCommands() - Show this help');
 };
 
@@ -157,8 +171,9 @@ if (typeof window !== 'undefined') {
   (window as any).clearAllSustainabilityData = clearAllSustainabilityData;
   (window as any).recalculateResults = recalculateResults;
   (window as any).showResultsDebugInfo = showResultsDebugInfo;
-  (window as any).testGoogleSheetsIntegration = testGoogleSheetsIntegration;
-  (window as any).getGoogleSheetsBackup = getGoogleSheetsBackup;
-  (window as any).clearGoogleSheetsData = clearGoogleSheetsData;
+  (window as any).testSupabaseIntegration = testSupabaseIntegration;
+  (window as any).getSupabaseBackup = getSupabaseBackup;
+  (window as any).clearSupabaseData = clearSupabaseData;
+  (window as any).migrateFromGoogleSheets = migrateFromGoogleSheets;
   (window as any).showDebugCommands = showDebugCommands;
 }

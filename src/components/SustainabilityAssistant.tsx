@@ -3,7 +3,7 @@ import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { SustainabilityResults } from './SustainabilityResults';
 import { SustainabilityChat } from './SustainabilityChat';
-import { GoogleSheetsStatus } from './GoogleSheetsStatus';
+import { SupabaseStatus } from './SupabaseStatus';
 import { useSustainabilityAssistant } from '@/hooks/useSustainabilityAssistant';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -218,7 +218,7 @@ export const SustainabilityAssistant = () => {
                 </p>
               </div>
               <div className="flex gap-2">
-                <GoogleSheetsStatus />
+                <SupabaseStatus />
                 {state.currentStep !== 'results' && state.currentStep !== 'chat' && (
                   <Button
                     variant="outline"

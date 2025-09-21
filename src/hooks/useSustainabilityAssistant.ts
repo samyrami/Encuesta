@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { sustainabilityQuestions, UserProfile, SustainabilityResponse, SustainabilityResults } from '@/data/sustainability-questionnaire.v2';
 import { universities } from '@/data/universities';
 import { persistAssistantData, loadAssistantData, clearAssistantData, hasPersistedData } from '@/utils/persistence';
-import { googleSheetsService, SurveyResponse } from '@/services/googleSheetsProxy';
+import { SurveyResponse, supabaseService } from '../services/supabaseService';
 
 export interface ChatMessage {
   id: string;
@@ -284,14 +284,14 @@ Selecciona de la lista la universidad que deseas evaluar:`,
     }
   }, [state.responses, addMessage]);
 
-  const saveToGoogleSheets = async (results: SustainabilityResults) => {
+  const saveToSupabase = async (results: SustainabilityResults) => {
     try {
-      if (!googleSheetsService.isConfigured()) {
-        console.log('📋 Google Sheets no configurado, omitiendo...');
+      if (!supabaseService.isReady()) {
+        console.log('📋 Supabase no configurado, omitiendo...');
         return;
       }
 
-      console.log('📄 Preparando datos para Google Sheets...');
+      console.log('📄 Preparando datos para Supabase...');
       
       const surveyData: SurveyResponse = {
         timestamp: results.completedAt.toISOString(),
@@ -319,8 +319,8 @@ Selecciona de la lista la universidad que deseas evaluar:`,
         ]
       };
 
-      await googleSheetsService.saveResponse(surveyData);
-      console.log('✅ Datos guardados en Google Sheets exitosamente');
+      await supabaseService.saveResponse(surveyData);
+      console.log('✅ Datos guardados en Supabase exitosamente');
       
       // Mostrar notificación al usuario
       addMessage(
@@ -329,7 +329,7 @@ Selecciona de la lista la universidad que deseas evaluar:`,
       );
       
     } catch (error) {
-      console.error('❌ Error guardando en Google Sheets:', error);
+      console.error('❌ Error guardando en Supabase:', error);
       // No mostrar error al usuario, ya que las respuestas están guardadas localmente
     }
   }; // Note: addMessage is used inside but it's stable and doesn't need dependency
@@ -361,16 +361,16 @@ Selecciona de la lista la universidad que deseas evaluar:`,
       }
     }, 100);
 
-    // Intentar guardar en Google Sheets
+    // Intentar guardar en Supabase
     setTimeout(() => {
-      saveToGoogleSheets(results);
+      saveToSupabase(results);
     }, 500);
 
     addMessage(
       '✅ **¡Diagnóstico Completado!**\n\nTu evaluación de sostenibilidad universitaria ha sido procesada exitosamente.\n\nPuedes revisar los resultados detallados, exportar el informe en PDF, o continuar conversando para profundizar en recomendaciones específicas.',
       'bot'
     );
-  }, [state.responses, state.profile, saveToGoogleSheets, addMessage]);
+  }, [state.responses, state.profile, saveToSupabase, addMessage]);
 
   const calculateSustainabilityResults = useCallback((): SustainabilityResults => {
     const profile = state.profile as UserProfile;
