@@ -25,10 +25,10 @@ export const DiagnosisSummary = ({
   const { toast } = useToast();
 
   const getScoreLevel = (score: number) => {
-    if (score >= 80) return { level: 'Excelente', color: 'bg-green-500', description: 'Alto potencial exportador' };
-    if (score >= 60) return { level: 'Bueno', color: 'bg-blue-500', description: 'Buena preparación con algunas mejoras' };
-    if (score >= 40) return { level: 'Moderado', color: 'bg-yellow-500', description: 'Preparación básica, requiere desarrollo' };
-    return { level: 'Inicial', color: 'bg-red-500', description: 'Necesita desarrollo significativo' };
+    if (score >= 80) return { level: 'Excelente', color: 'bg-green-400', description: 'Alto potencial exportador' };
+    if (score >= 60) return { level: 'Bueno', color: 'bg-blue-400', description: 'Buena preparación con algunas mejoras' };
+    if (score >= 40) return { level: 'Moderado', color: 'bg-yellow-400', description: 'Preparación básica, requiere desarrollo' };
+    return { level: 'Inicial', color: 'bg-red-400', description: 'Necesita desarrollo significativo' };
   };
 
   const scoreInfo = getScoreLevel(diagnosis.score);
@@ -283,7 +283,7 @@ export const DiagnosisSummary = ({
             <CardContent>
               <div className="prose prose-sm max-w-none">
                 <p>
-                  El <strong>Laboratorio de Gobierno</strong> y el <strong>Laboratorio de Comercio Internacional de la Universidad de La Sabana</strong> ofrecen:
+                  El <strong>Laboratorio de Gobierno de la Universidad de La Sabana</strong> ofrece:
                 </p>
                 <ul className="space-y-2 mt-4">
                   <li>🎓 <strong>Programas especializados</strong> en comercio internacional</li>
@@ -295,7 +295,7 @@ export const DiagnosisSummary = ({
                 <div className="mt-6 p-4 bg-primary/10 rounded-lg">
                   <p className="font-medium">📧 Contacto:</p>
                   <p className="text-sm">
-                    Laboratorio de Gobierno y Laboratorio de Comercio Internacional<br />
+                    Laboratorio de Gobierno<br />
                     Universidad de La Sabana<br />
                     Email: comercio.internacional@unisabana.edu.co
                   </p>
@@ -313,7 +313,7 @@ export const DiagnosisSummary = ({
                   como base para tomar decisiones estratégicas sobre la <strong>internacionalización de su empresa</strong>.
                 </p>
                 <p className="text-xs">
-                  <em>Desarrollado por el Laboratorio de Gobierno con el apoyo del Laboratorio de Comercio Internacional - Universidad de La Sabana © 2024</em>
+                  <em>Desarrollado por el Laboratorio de Gobierno - Universidad de La Sabana © 2024</em>
                 </p>
               </div>
             </CardContent>

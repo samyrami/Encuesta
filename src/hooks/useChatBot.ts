@@ -25,7 +25,7 @@ export const useChatBot = () => {
   }, []);
 
   const initializeBot = useCallback(() => {
-    const welcomeMessage = `¡Hola! Soy el asistente del **Exporta Check**, desarrollado por el **Laboratorio de Gobierno** con el apoyo del **Laboratorio de Comercio Internacional de la Universidad de La Sabana**.
+    const welcomeMessage = `¡Hola! Soy el asistente del **Exporta Check**, desarrollado por el **Laboratorio de Gobierno de la Universidad de La Sabana**.
 
 Este cuestionario te ayudará a **evaluar la preparación y capacidad exportadora** de tu empresa. La información que proporciones será utilizada únicamente para diagnóstico y orientación general.
 

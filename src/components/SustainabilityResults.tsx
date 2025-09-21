@@ -34,9 +34,130 @@ export const SustainabilityResults = ({ results, onContinueChat, onRestart }: Su
     return (score ?? 0).toFixed(1);
   };
 
-  const exportToPDF = () => {
-    // Implementar exportación a PDF
-    console.log('Exportar a PDF');
+  const exportToPDF = async () => {
+    try {
+      // Dynamic import to reduce initial bundle size
+      const html2pdf = (await import('html2pdf.js')).default;
+      
+      // Create a temporary div with the content for PDF
+      const element = document.createElement('div');
+      element.innerHTML = generateHTMLContent(results);
+      element.style.padding = '20px';
+      element.style.fontFamily = 'Arial, sans-serif';
+      element.style.lineHeight = '1.6';
+      
+      // Temporarily add to body for rendering
+      document.body.appendChild(element);
+      
+      const opt = {
+        margin: 1,
+        filename: `evaluacion-sostenibilidad-${results.profile.university?.replace(/\s+/g, '-').toLowerCase()}-${Date.now()}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      
+      await html2pdf().set(opt).from(element).save();
+      
+      // Remove temporary element
+      document.body.removeChild(element);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      // Fallback to text download
+      exportToText();
+    }
+  };
+  
+  const generateHTMLContent = (results: Results) => {
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px;">
+          <h1 style="color: #333; font-size: 28px; margin-bottom: 10px;">EVALUACIÓN DE SOSTENIBILIDAD UNIVERSITARIA</h1>
+          <p style="color: #666; font-size: 16px;">Universidad de La Sabana - Laboratorio de Gobierno</p>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h2 style="color: #333; font-size: 20px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">INFORMACIÓN DEL EVALUADOR</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+            <p><strong>Nombre:</strong> ${results.profile.name}</p>
+            <p><strong>Universidad:</strong> ${results.profile.university}</p>
+            <p><strong>Fecha:</strong> ${results.completedAt.toLocaleDateString()}</p>
+            <p><strong>Puntuación General:</strong> ${displayScore(results.overallScore)}/5.0 - ${getScoreLabel(results.overallScore)}</p>
+          </div>
+        </div>
+        
+        <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h2 style="color: #2e7d32; font-size: 18px; margin-bottom: 15px;">🌍 DIMENSIÓN AMBIENTAL: ${displayScore(results.dimensions.ambiental.score)}/5.0</h2>
+          <div style="margin-bottom: 15px;">
+            <h3 style="color: #388e3c; font-size: 16px; margin-bottom: 10px;">Fortalezas:</h3>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+              ${results.dimensions.ambiental.strengths.map(s => `<li style="margin-bottom: 5px; color: #333;">${s}</li>`).join('')}
+            </ul>
+          </div>
+          <div style="margin-bottom: 15px;">
+            <h3 style="color: #f57c00; font-size: 16px; margin-bottom: 10px;">Áreas de mejora:</h3>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+              ${results.dimensions.ambiental.weaknesses.map(w => `<li style="margin-bottom: 5px; color: #333;">${w}</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h3 style="color: #1976d2; font-size: 16px; margin-bottom: 10px;">Recomendaciones principales:</h3>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+              ${results.dimensions.ambiental.recommendations.slice(0, 3).map(r => `<li style="margin-bottom: 5px; color: #333;">${r}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+        
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h2 style="color: #1565c0; font-size: 18px; margin-bottom: 15px;">👥 DIMENSIÓN SOCIAL: ${displayScore(results.dimensions.social.score)}/5.0</h2>
+          <div style="margin-bottom: 15px;">
+            <h3 style="color: #388e3c; font-size: 16px; margin-bottom: 10px;">Fortalezas:</h3>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+              ${results.dimensions.social.strengths.map(s => `<li style="margin-bottom: 5px; color: #333;">${s}</li>`).join('')}
+            </ul>
+          </div>
+          <div style="margin-bottom: 15px;">
+            <h3 style="color: #f57c00; font-size: 16px; margin-bottom: 10px;">Áreas de mejora:</h3>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+              ${results.dimensions.social.weaknesses.map(w => `<li style="margin-bottom: 5px; color: #333;">${w}</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h3 style="color: #1976d2; font-size: 16px; margin-bottom: 10px;">Recomendaciones principales:</h3>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+              ${results.dimensions.social.recommendations.slice(0, 3).map(r => `<li style="margin-bottom: 5px; color: #333;">${r}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+        
+        <div style="background: #f3e5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h2 style="color: #7b1fa2; font-size: 18px; margin-bottom: 15px;">🏦 DIMENSIÓN GOBERNANZA: ${displayScore(results.dimensions.gobernanza.score)}/5.0</h2>
+          <div style="margin-bottom: 15px;">
+            <h3 style="color: #388e3c; font-size: 16px; margin-bottom: 10px;">Fortalezas:</h3>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+              ${results.dimensions.gobernanza.strengths.map(s => `<li style="margin-bottom: 5px; color: #333;">${s}</li>`).join('')}
+            </ul>
+          </div>
+          <div style="margin-bottom: 15px;">
+            <h3 style="color: #f57c00; font-size: 16px; margin-bottom: 10px;">Áreas de mejora:</h3>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+              ${results.dimensions.gobernanza.weaknesses.map(w => `<li style="margin-bottom: 5px; color: #333;">${w}</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <h3 style="color: #1976d2; font-size: 16px; margin-bottom: 10px;">Recomendaciones principales:</h3>
+            <ul style="padding-left: 20px; line-height: 1.6;">
+              ${results.dimensions.gobernanza.recommendations.slice(0, 3).map(r => `<li style="margin-bottom: 5px; color: #333;">${r}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
+          <p><em>Generado por el Asistente Virtual de Sostenibilidad Universitaria</em></p>
+          <p><em>Universidad de La Sabana © 2024</em></p>
+        </div>
+      </div>
+    `;
   };
 
   const exportToText = () => {

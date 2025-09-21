@@ -22,7 +22,7 @@ export const UniversityBranding = () => {
         Exporta Check
       </h1>
       <p className="text-sm text-muted-foreground">
-        <strong>Laboratorio de Gobierno</strong> • <strong>Laboratorio de Comercio Internacional</strong><br />
+        <strong>Laboratorio de Gobierno</strong><br />
         Universidad de La Sabana
       </p>
       <div className="flex items-center justify-center gap-4 mt-4">

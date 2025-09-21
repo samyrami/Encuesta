@@ -98,7 +98,7 @@ const generateRecommendations = (
   if (diagnosisByType.weakness.length > 0 || diagnosisByType.improvement.length > 0) {
     recommendations.push(
       "Desarrolle un cronograma de implementación para abordar las áreas de mejora identificadas",
-      "Busque asesoría especializada del Laboratorio de Gobierno y del Laboratorio de Comercio Internacional de la Universidad de La Sabana",
+      "Busque asesoría especializada del Laboratorio de Gobierno de la Universidad de La Sabana",
       "Establezca métricas para monitorear el progreso en cada área de mejora"
     );
   }
@@ -122,7 +122,7 @@ export const refineDiagnosisWithOpenAI = async (
         messages: [
           {
             role: 'system',
-            content: `Eres un asesor especializado del Laboratorio de Gobierno y del Laboratorio de Comercio Internacional de la Universidad de La Sabana. 
+            content: `Eres un asesor especializado del Laboratorio de Gobierno de la Universidad de La Sabana. 
             
 Tu tarea es mejorar la redacción de un diagnóstico de capacidad exportadora manteniendo las tres secciones principales: Fortalezas, Debilidades y Recomendaciones.
 

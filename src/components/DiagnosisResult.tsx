@@ -12,7 +12,41 @@ interface DiagnosisResultProps {
 }
 
 export const DiagnosisResultComponent = ({ diagnosis, onContinueChat, onRestart }: DiagnosisResultProps) => {
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
+    try {
+      // Dynamic import to reduce initial bundle size
+      const html2pdf = (await import('html2pdf.js')).default;
+      
+      // Create a temporary div with the content for PDF
+      const element = document.createElement('div');
+      element.innerHTML = generateHTMLContent(diagnosis);
+      element.style.padding = '20px';
+      element.style.fontFamily = 'Arial, sans-serif';
+      element.style.lineHeight = '1.6';
+      
+      // Temporarily add to body for rendering
+      document.body.appendChild(element);
+      
+      const opt = {
+        margin: 1,
+        filename: `diagnostico-exportador-${diagnosis.company}-${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      
+      await html2pdf().set(opt).from(element).save();
+      
+      // Remove temporary element
+      document.body.removeChild(element);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      // Fallback to text download
+      downloadTXT();
+    }
+  };
+  
+  const downloadTXT = () => {
     const content = generatePDFContent(diagnosis);
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -36,6 +70,70 @@ export const DiagnosisResultComponent = ({ diagnosis, onContinueChat, onRestart 
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const generateHTMLContent = (diagnosis: DiagnosisResult) => {
+    return `
+      <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 30px; border-bottom: 2px solid #333; padding-bottom: 20px;">
+          <h1 style="color: #333; font-size: 28px; margin-bottom: 10px;">DIAGNÓSTICO DE CAPACIDAD EXPORTADORA</h1>
+          <p style="color: #666; font-size: 16px;">Universidad de La Sabana - Laboratorio de Gobierno</p>
+        </div>
+        
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+          <h2 style="color: #333; font-size: 20px; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 5px;">DATOS DE LA EVALUACIÓN</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 14px;">
+            <p><strong>Empresa:</strong> ${diagnosis.company}</p>
+            <p><strong>Responsable:</strong> ${diagnosis.name}</p>
+            <p><strong>Ciudad:</strong> ${diagnosis.city}</p>
+            <p><strong>Fecha:</strong> ${diagnosis.date}</p>
+            <p><strong>Categoría:</strong> ${diagnosis.category}</p>
+            <p><strong>Puntuación:</strong> ${diagnosis.score}/100</p>
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+          <h2 style="color: #28a745; font-size: 18px; margin-bottom: 15px;">✅ FORTALEZAS IDENTIFICADAS</h2>
+          <ul style="padding-left: 20px; line-height: 1.8;">
+            ${diagnosis.strengths.map(s => `<li style="margin-bottom: 8px; color: #333;">${s}</li>`).join('')}
+          </ul>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+          <h2 style="color: #dc3545; font-size: 18px; margin-bottom: 15px;">⚠️ ÁREAS DE MEJORA</h2>
+          <ul style="padding-left: 20px; line-height: 1.8;">
+            ${diagnosis.weaknesses.map(w => `<li style="margin-bottom: 8px; color: #333;">${w}</li>`).join('')}
+          </ul>
+        </div>
+        
+        <div style="margin-bottom: 25px;">
+          <h2 style="color: #007bff; font-size: 18px; margin-bottom: 15px;">🎯 RECOMENDACIONES ESTRATÉGICAS</h2>
+          <ol style="padding-left: 20px; line-height: 1.8;">
+            ${diagnosis.recommendations.map((r, i) => `<li style="margin-bottom: 8px; color: #333;">${r}</li>`).join('')}
+          </ol>
+        </div>
+        
+        <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; border-left: 4px solid #2196f3;">
+          <h2 style="color: #1976d2; font-size: 18px; margin-bottom: 15px;">📞 PRÓXIMOS PASOS</h2>
+          <p style="margin-bottom: 15px; color: #333;">El <strong>Laboratorio de Gobierno</strong> de la Universidad de La Sabana ofrece:</p>
+          <ul style="padding-left: 20px; line-height: 1.8; color: #333;">
+            <li>Programas especializados en comercio internacional</li>
+            <li>Servicios de consultoría para exportadores</li>
+            <li>Capacitaciones en preparación exportadora</li>
+            <li>Inteligencia de mercados y oportunidades comerciales</li>
+          </ul>
+          
+          <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #bbdefb;">
+            <p style="margin-bottom: 5px; color: #333;"><strong>Contacto:</strong></p>
+            <p style="color: #333; font-size: 14px;">Laboratorio de Gobierno<br/>Universidad de La Sabana<br/>Email: comercio.internacional@unisabana.edu.co</p>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666;">
+          <p><em>Desarrollado por el Laboratorio de Gobierno - Universidad de La Sabana © 2024</em></p>
+        </div>
+      </div>
+    `;
   };
 
   const generatePDFContent = (diagnosis: DiagnosisResult) => {
@@ -65,17 +163,17 @@ ${diagnosis.recommendations.map((r, i) => `${i + 1}. ${r}`).join('\n')}
 
 PRÓXIMOS PASOS
 ---------------
-El Laboratorio de Gobierno y el Laboratorio de Comercio Internacional de la Universidad de La Sabana ofrecen:
+El Laboratorio de Gobierno de la Universidad de La Sabana ofrece:
 • Programas especializados en comercio internacional
 • Servicios de consultoría para exportadores
 • Capacitaciones en preparación exportadora
 • Inteligencia de mercados y oportunidades comerciales
 
-Contacto: Laboratorio de Gobierno y Laboratorio de Comercio Internacional
+Contacto: Laboratorio de Gobierno
 Universidad de La Sabana
 Email: comercio.internacional@unisabana.edu.co
 
-Desarrollado por el Laboratorio de Gobierno con el apoyo del Laboratorio de Comercio Internacional - Universidad de La Sabana © 2024`;
+Desarrollado por el Laboratorio de Gobierno - Universidad de La Sabana © 2024
   };
 
   const generateCSVContent = (diagnosis: DiagnosisResult) => {
@@ -110,15 +208,15 @@ Desarrollado por el Laboratorio de Gobierno con el apoyo del Laboratorio de Come
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'Principiante':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-50 text-red-600 border-red-100';
       case 'Intermedio':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-yellow-50 text-yellow-600 border-yellow-100';
       case 'Avanzado':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-50 text-blue-600 border-blue-100';
       case 'Experto':
-        return 'bg-green-100 text-green-800 border-green-200';
+        return 'bg-green-50 text-green-600 border-green-100';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-50 text-gray-600 border-gray-100';
     }
   };
 
@@ -229,8 +327,16 @@ Desarrollado por el Laboratorio de Gobierno con el apoyo del Laboratorio de Come
           variant="outline"
           className="flex items-center gap-2"
         >
+          <Download className="w-4 h-4" />
+          Descargar PDF
+        </Button>
+        <Button
+          onClick={downloadTXT}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
           <FileText className="w-4 h-4" />
-          Descargar txt
+          Descargar TXT
         </Button>
         <Button
           onClick={downloadCSV}
@@ -264,7 +370,7 @@ Desarrollado por el Laboratorio de Gobierno con el apoyo del Laboratorio de Come
         <CardContent className="pt-6">
           <h3 className="font-semibold text-blue-800 mb-2">📞 Próximos Pasos</h3>
           <p className="text-sm text-blue-700 mb-3">
-            El <strong>Laboratorio de Gobierno</strong> y el <strong>Laboratorio de Comercio Internacional de la Universidad de La Sabana</strong> ofrecen:
+            El <strong>Laboratorio de Gobierno de la Universidad de La Sabana</strong> ofrece:
           </p>
           <ul className="text-sm text-blue-700 space-y-1">
             <li>• <strong>Programas especializados</strong> en comercio internacional</li>

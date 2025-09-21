@@ -200,7 +200,7 @@ export const SustainabilityAssistant = () => {
               <strong>Universidad de La Sabana</strong>
             </p>
             <p className="text-xs text-muted-foreground">
-              Laboratorio de Gobierno • Laboratorio de Comercio Internacional
+              Laboratorio de Gobierno
             </p>
           </div>
         </div>
@@ -253,7 +253,7 @@ export const SustainabilityAssistant = () => {
             />
           </div>
           <p>
-            Desarrollado por el <strong>Laboratorio de Gobierno</strong> y <strong>Laboratorio de Comercio Internacional</strong><br />
+            Desarrollado por el <strong>Laboratorio de Gobierno</strong><br />
             <strong>Universidad de La Sabana</strong> © 2024
           </p>
           <p className="mt-2">

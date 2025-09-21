@@ -207,7 +207,7 @@ export const QuestionnaireWizard = ({
 
         <div className="mt-6 text-center text-xs text-muted-foreground">
           <p>
-            Desarrollado por el <strong>Laboratorio de Gobierno</strong> con el apoyo del <strong>Laboratorio de Comercio Internacional</strong><br />
+            Desarrollado por el <strong>Laboratorio de Gobierno</strong><br />
             Universidad de La Sabana © 2024
           </p>
         </div>
