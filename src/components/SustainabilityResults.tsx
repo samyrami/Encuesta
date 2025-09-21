@@ -267,13 +267,13 @@ Universidad de La Sabana © 2024
         {/* Dimensions Results */}
         <div className="grid gap-6 md:grid-cols-3">
           {/* Ambiental */}
-          <Card>
+          <Card className="bg-green-50/50 border-green-200/50">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                 <span>🌍 Ambiental</span>
               </CardTitle>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-2xl font-bold text-green-800">
                 {displayScore(results.dimensions.ambiental.score)}/5.0
               </div>
             </CardHeader>
@@ -299,13 +299,13 @@ Universidad de La Sabana © 2024
           </Card>
 
           {/* Social */}
-          <Card>
+          <Card className="bg-blue-50/50 border-blue-200/50">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
                 <span>👥 Social</span>
               </CardTitle>
-              <div className="text-2xl font-bold text-blue-600">
+              <div className="text-2xl font-bold text-blue-800">
                 {displayScore(results.dimensions.social.score)}/5.0
               </div>
             </CardHeader>
@@ -331,13 +331,13 @@ Universidad de La Sabana © 2024
           </Card>
 
           {/* Gobernanza */}
-          <Card>
+          <Card className="bg-purple-50/50 border-purple-200/50">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                <span>🏛️ Gobernanza</span>
+                <span>🏦 Gobernanza</span>
               </CardTitle>
-              <div className="text-2xl font-bold text-purple-600">
+              <div className="text-2xl font-bold text-purple-800">
                 {displayScore(results.dimensions.gobernanza.score)}/5.0
               </div>
             </CardHeader>

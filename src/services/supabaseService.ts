@@ -91,7 +91,7 @@ class SupabaseService {
 
       const sessionId = this.generateSessionId();
 
-      // Step 1: Insert main survey response
+      // Prepare comprehensive data for single table
       const surveyData = {
         timestamp: data.timestamp,
         name: data.name,
@@ -100,87 +100,24 @@ class SupabaseService {
         ambiental_score: data.ambientalScore,
         social_score: data.socialScore,
         gobernanza_score: data.gobernanzaScore,
-        session_id: sessionId
+        session_id: sessionId,
+        responses: data.responses || [],
+        strengths: data.strengths || [],
+        weaknesses: data.weaknesses || [],
+        recommendations: data.recommendations || []
       };
 
-      console.log('📊 Insertando respuesta principal...');
-      const surveyResponse = await this.makeRequest('survey_responses', {
+      console.log('📊 Insertando datos completos en tabla única...');
+      const result = await this.makeRequest('survey_data', {
         method: 'POST',
         body: JSON.stringify(surveyData)
       });
 
-      if (!surveyResponse || !surveyResponse[0]) {
-        throw new Error('No se pudo crear la respuesta principal');
+      if (!result || !result[0]) {
+        throw new Error('No se pudo guardar la respuesta');
       }
 
-      const surveyResponseId = surveyResponse[0].id;
-      console.log('✅ Respuesta principal creada con ID:', surveyResponseId);
-
-      // Step 2: Insert individual question responses
-      if (data.responses && data.responses.length > 0) {
-        console.log('📝 Insertando respuestas individuales...');
-        const questionResponses = data.responses.map(response => ({
-          survey_response_id: surveyResponseId,
-          question_id: response.questionId || `question_${Date.now()}`,
-          score: response.score || 0,
-          answer: response.answer || '',
-          dimension: this.inferDimension(response),
-          timestamp: response.timestamp ? new Date(response.timestamp).toISOString() : new Date().toISOString()
-        }));
-
-        await this.makeRequest('question_responses', {
-          method: 'POST',
-          body: JSON.stringify(questionResponses)
-        });
-      }
-
-      // Step 3: Insert strengths
-      if (data.strengths && data.strengths.length > 0) {
-        console.log('💪 Insertando fortalezas...');
-        const strengthsData = data.strengths.map(strength => ({
-          survey_response_id: surveyResponseId,
-          strength: strength,
-          dimension: this.inferDimensionFromText(strength)
-        }));
-
-        await this.makeRequest('survey_strengths', {
-          method: 'POST',
-          body: JSON.stringify(strengthsData)
-        });
-      }
-
-      // Step 4: Insert weaknesses
-      if (data.weaknesses && data.weaknesses.length > 0) {
-        console.log('⚠️ Insertando debilidades...');
-        const weaknessesData = data.weaknesses.map(weakness => ({
-          survey_response_id: surveyResponseId,
-          weakness: weakness,
-          dimension: this.inferDimensionFromText(weakness)
-        }));
-
-        await this.makeRequest('survey_weaknesses', {
-          method: 'POST',
-          body: JSON.stringify(weaknessesData)
-        });
-      }
-
-      // Step 5: Insert recommendations
-      if (data.recommendations && data.recommendations.length > 0) {
-        console.log('🎯 Insertando recomendaciones...');
-        const recommendationsData = data.recommendations.map((recommendation, index) => ({
-          survey_response_id: surveyResponseId,
-          recommendation: recommendation,
-          dimension: this.inferDimensionFromText(recommendation),
-          priority: index + 1
-        }));
-
-        await this.makeRequest('survey_recommendations', {
-          method: 'POST',
-          body: JSON.stringify(recommendationsData)
-        });
-      }
-
-      console.log('✅ Datos guardados exitosamente en Supabase');
+      console.log('✅ Datos guardados exitosamente en Supabase con ID:', result[0].id);
       return true;
 
     } catch (error) {
@@ -193,52 +130,6 @@ class SupabaseService {
     }
   }
 
-  private inferDimension(response: any): string | null {
-    // Try to infer dimension from question ID or other properties
-    if (response.questionId) {
-      const questionId = response.questionId.toLowerCase();
-      if (questionId.includes('ambiental') || questionId.includes('environmental')) {
-        return 'Ambiental';
-      }
-      if (questionId.includes('social')) {
-        return 'Social';
-      }
-      if (questionId.includes('gobernanza') || questionId.includes('governance')) {
-        return 'Gobernanza';
-      }
-    }
-    return null;
-  }
-
-  private inferDimensionFromText(text: string): string | null {
-    const lowerText = text.toLowerCase();
-    
-    // Environmental keywords
-    if (lowerText.includes('ambiental') || lowerText.includes('ambiente') || 
-        lowerText.includes('sostenibilidad') || lowerText.includes('ecológ') ||
-        lowerText.includes('energía') || lowerText.includes('residuos') ||
-        lowerText.includes('verde') || lowerText.includes('carbono')) {
-      return 'Ambiental';
-    }
-    
-    // Social keywords
-    if (lowerText.includes('social') || lowerText.includes('comunidad') || 
-        lowerText.includes('estudiante') || lowerText.includes('equidad') ||
-        lowerText.includes('inclusión') || lowerText.includes('bienestar') ||
-        lowerText.includes('diversidad') || lowerText.includes('acceso')) {
-      return 'Social';
-    }
-    
-    // Governance keywords
-    if (lowerText.includes('gobernanza') || lowerText.includes('transparencia') || 
-        lowerText.includes('ética') || lowerText.includes('gestión') ||
-        lowerText.includes('liderazgo') || lowerText.includes('política') ||
-        lowerText.includes('planificación') || lowerText.includes('estrategia')) {
-      return 'Gobernanza';
-    }
-    
-    return null;
-  }
 
   private saveToLocalBackup(data: SurveyResponse): void {
     try {
@@ -264,8 +155,8 @@ class SupabaseService {
         return false;
       }
 
-      // Simple test: try to query survey_responses table
-      await this.makeRequest('survey_responses?select=id&limit=1');
+      // Simple test: try to query survey_data table
+      await this.makeRequest('survey_data?select=id&limit=1');
       
       console.log('✅ Conexión con Supabase exitosa');
       return true;
@@ -278,7 +169,7 @@ class SupabaseService {
   async getSurveyStatistics(): Promise<any> {
     try {
       // Get basic statistics
-      const stats = await this.makeRequest('survey_responses?select=university,overall_score,ambiental_score,social_score,gobernanza_score,timestamp');
+      const stats = await this.makeRequest('survey_data?select=university,overall_score,ambiental_score,social_score,gobernanza_score,timestamp,name');
       return stats;
     } catch (error) {
       console.error('❌ Error obteniendo estadísticas:', error);
@@ -312,13 +203,28 @@ class SupabaseService {
       socialScore: 4.5,
       gobernanzaScore: 4.0,
       responses: [
-        { questionId: 'ambiental_1', score: 4, answer: 'Respuesta de prueba ambiental' },
-        { questionId: 'social_1', score: 5, answer: 'Respuesta de prueba social' },
-        { questionId: 'gobernanza_1', score: 4, answer: 'Respuesta de prueba gobernanza' }
+        { 
+          questionId: 'ambiental_1', 
+          score: 4, 
+          answer: '4. Implementado de manera amplia',
+          question: '¿Cómo evalúa el nivel de implementación de políticas ambientales en su universidad?'
+        },
+        { 
+          questionId: 'social_1', 
+          score: 5, 
+          answer: '5. Completamente implementado',
+          question: '¿En qué medida su universidad promueve la equidad e inclusión social?'
+        },
+        { 
+          questionId: 'gobernanza_1', 
+          score: 4, 
+          answer: '4. Implementado de manera amplia',
+          question: '¿Cómo califica la transparencia en los procesos de toma de decisiones?'
+        }
       ],
-      strengths: ['Gestión ambiental excelente', 'Responsabilidad social sólida'],
+      strengths: ['Gestión ambiental excelente', 'Responsabilidad social sólida', 'Liderazgo en sostenibilidad'],
       weaknesses: ['Transparencia mejorable'],
-      recommendations: ['Mejorar comunicación institucional', 'Implementar políticas de sostenibilidad']
+      recommendations: ['Mejorar comunicación institucional', 'Implementar políticas de sostenibilidad', 'Fortalecer procesos participativos']
     };
     
     return await this.saveResponse(testData);
