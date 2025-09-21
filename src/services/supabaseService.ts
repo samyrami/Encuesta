@@ -91,8 +91,8 @@ class SupabaseService {
 
       const sessionId = this.generateSessionId();
 
-      // Prepare comprehensive data for single table
-      const surveyData = {
+      // Prepare base data
+      const surveyData: any = {
         timestamp: data.timestamp,
         name: data.name,
         university: data.university,
@@ -101,14 +101,25 @@ class SupabaseService {
         social_score: data.socialScore,
         gobernanza_score: data.gobernanzaScore,
         session_id: sessionId,
-        responses: data.responses || [],
         strengths: data.strengths || [],
         weaknesses: data.weaknesses || [],
         recommendations: data.recommendations || []
       };
 
-      console.log('📊 Insertando datos completos en tabla única...');
-      const result = await this.makeRequest('survey_data', {
+      // Map individual responses to specific columns
+      if (data.responses && data.responses.length > 0) {
+        data.responses.forEach((response: any) => {
+          if (response.questionId) {
+            // Set score column
+            surveyData[response.questionId] = response.score;
+            // Set answer text column
+            surveyData[`${response.questionId}_respuesta`] = response.answer || response.response || '';
+          }
+        });
+      }
+
+      console.log('📊 Insertando datos detallados en tabla...');
+      const result = await this.makeRequest('survey_responses', {
         method: 'POST',
         body: JSON.stringify(surveyData)
       });
@@ -155,8 +166,8 @@ class SupabaseService {
         return false;
       }
 
-      // Simple test: try to query survey_data table
-      await this.makeRequest('survey_data?select=id&limit=1');
+      // Simple test: try to query survey_responses table
+      await this.makeRequest('survey_responses?select=id&limit=1');
       
       console.log('✅ Conexión con Supabase exitosa');
       return true;
@@ -169,7 +180,7 @@ class SupabaseService {
   async getSurveyStatistics(): Promise<any> {
     try {
       // Get basic statistics
-      const stats = await this.makeRequest('survey_data?select=university,overall_score,ambiental_score,social_score,gobernanza_score,timestamp,name');
+      const stats = await this.makeRequest('survey_responses?select=university,overall_score,ambiental_score,social_score,gobernanza_score,timestamp,name');
       return stats;
     } catch (error) {
       console.error('❌ Error obteniendo estadísticas:', error);

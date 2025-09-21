@@ -6,6 +6,24 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Download, FileText, MessageSquare, RotateCcw, TrendingUp, TrendingDown, CheckCircle } from 'lucide-react';
 import { SustainabilityResults as Results } from '@/data/sustainability-questionnaire.v2';
+import * as ProgressPrimitive from "@radix-ui/react-progress"
+import { cn } from "@/lib/utils"
+
+// Custom Progress component with lighter colors
+const LightProgress = ({ value, className, ...props }: React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & { value?: number }) => (
+  <ProgressPrimitive.Root
+    className={cn(
+      "relative h-3 w-full overflow-hidden rounded-full bg-gray-200",
+      className
+    )}
+    {...props}
+  >
+    <ProgressPrimitive.Indicator
+      className="h-full w-full flex-1 bg-gradient-to-r from-blue-300 to-green-300 transition-all"
+      style={{ transform: `translateX(-${100 - (value || 0)}%)` }}
+    />
+  </ProgressPrimitive.Root>
+)
 
 interface SustainabilityResultsProps {
   results: Results;
@@ -246,7 +264,7 @@ Universidad de La Sabana © 2024
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <span>Puntuación General</span>
-              <Badge variant="secondary" className={`text-lg px-3 py-1 ${getScoreColor(results.overallScore)}`}>
+              <Badge variant="secondary" className="text-lg px-3 py-1 text-black bg-gray-100">
                 {displayScore(results.overallScore)}/5.0
               </Badge>
             </CardTitle>
@@ -255,11 +273,11 @@ Universidad de La Sabana © 2024
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Nivel de Sostenibilidad:</span>
-                <span className={`font-semibold ${getScoreColor(results.overallScore)}`}>
+                <span className="font-semibold text-black">
                   {getScoreLabel(results.overallScore)}
                 </span>
               </div>
-              <Progress value={(results.overallScore ?? 0) * 20} className="h-3" />
+              <LightProgress value={(results.overallScore ?? 0) * 20} className="h-3" />
             </div>
           </CardContent>
         </Card>
@@ -278,7 +296,7 @@ Universidad de La Sabana © 2024
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Progress value={(results.dimensions.ambiental.score ?? 0) * 20} className="h-2" />
+              <LightProgress value={(results.dimensions.ambiental.score ?? 0) * 20} className="h-2" />
               
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
@@ -310,7 +328,7 @@ Universidad de La Sabana © 2024
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Progress value={(results.dimensions.social.score ?? 0) * 20} className="h-2" />
+              <LightProgress value={(results.dimensions.social.score ?? 0) * 20} className="h-2" />
               
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
@@ -342,7 +360,7 @@ Universidad de La Sabana © 2024
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Progress value={(results.dimensions.gobernanza.score ?? 0) * 20} className="h-2" />
+              <LightProgress value={(results.dimensions.gobernanza.score ?? 0) * 20} className="h-2" />
               
               <div className="space-y-2">
                 <div className="flex items-center space-x-2">
