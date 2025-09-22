@@ -122,8 +122,8 @@ export const SustainabilityAssistant = () => {
       default:
         return (
           <>
-            <ScrollArea ref={scrollAreaRef} className="flex-1 p-6">
-              <div className="space-y-4 max-w-4xl mx-auto">
+            <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 sm:p-6">
+              <div className="space-y-3 sm:space-y-4 max-w-4xl mx-auto">
                 {messages.map((message) => (
                   <div key={message.id} className="message-enter">
                     <ChatMessage
@@ -155,7 +155,7 @@ export const SustainabilityAssistant = () => {
             </ScrollArea>
 
             {isWaitingForInput && (
-              <div className="p-4 border-t border-card-border bg-chat-background">
+              <div className="p-3 sm:p-4 border-t border-card-border bg-chat-background">
                 <div className="max-w-4xl mx-auto">
                   <ChatInput
                     onSendMessage={handleUserMessage}
@@ -175,28 +175,29 @@ export const SustainabilityAssistant = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50 dark:from-green-950/20 dark:via-blue-950/20 dark:to-purple-950/20">
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center space-x-4 mb-4">
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-6 max-w-6xl">
+        {/* Header - Optimized for Mobile */}
+        <div className="text-center mb-4 sm:mb-6">
+          <div className="flex items-center justify-center space-x-2 sm:space-x-4 mb-3 sm:mb-4">
             {/* Universidad de La Sabana Logo */}
             <img 
               src={unisabanaLogo} 
               alt="Universidad de La Sabana" 
-              className="h-16 w-auto object-contain"
+              className="h-10 sm:h-16 w-auto object-contain"
             />
             {/* GovLab Logo */}
             <img 
               src={govlabLogo} 
               alt="Laboratorio de Gobierno" 
-              className="h-16 w-auto object-contain rounded-lg"
+              className="h-10 sm:h-16 w-auto object-contain rounded-lg"
             />
           </div>
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-primary mb-2">
-              Asistente Virtual de Sostenibilidad Universitaria
+          <div className="text-center px-2">
+            <h1 className="text-lg sm:text-2xl font-bold text-primary mb-2 leading-tight">
+              <span className="block sm:inline">Asistente Virtual de</span>
+              <span className="block sm:inline"> Sostenibilidad Universitaria</span>
             </h1>
-            <p className="text-sm text-muted-foreground mb-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-1">
               <strong>Universidad de La Sabana</strong>
             </p>
             <p className="text-xs text-muted-foreground">
@@ -205,26 +206,27 @@ export const SustainabilityAssistant = () => {
           </div>
         </div>
         
-        <div className="bg-card/80 backdrop-blur-sm border border-card-border rounded-2xl shadow-strong overflow-hidden">
-          <div className="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 p-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-primary-foreground font-semibold text-lg flex items-center space-x-2">
-                  <Sparkles className="w-5 h-5" />
-                  <span>Evaluación de Sostenibilidad</span>
+        <div className="bg-card/80 backdrop-blur-sm border border-card-border rounded-xl sm:rounded-2xl shadow-strong overflow-hidden">
+          <div className="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 p-3 sm:p-4">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex-1 min-w-0">
+                <h2 className="text-primary-foreground font-semibold text-base sm:text-lg flex items-center space-x-2">
+                  <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+                  <span className="truncate">Evaluación de Sostenibilidad</span>
                 </h2>
-                <p className="text-primary-foreground/80 text-sm">
+                <p className="text-primary-foreground/80 text-xs sm:text-sm truncate">
                   {getStepDescription()}
                 </p>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-1 sm:gap-2 flex-shrink-0">
                 <SupabaseStatus />
                 {state.currentStep !== 'results' && state.currentStep !== 'chat' && (
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={restartEvaluation}
-                    className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20"
+                    className="bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/20 p-2"
+                    title="Reiniciar evaluación"
                   >
                     <RotateCcw className="w-4 h-4" />
                   </Button>
@@ -233,30 +235,32 @@ export const SustainabilityAssistant = () => {
             </div>
           </div>
 
-          <div className={`${state.currentStep === 'results' ? 'min-h-[600px]' : state.currentStep === 'chat' ? 'h-[calc(100vh-200px)]' : 'h-[600px]'} flex flex-col bg-background/95 ${state.currentStep === 'results' ? 'overflow-y-auto' : ''}`}>
+          <div className={`${state.currentStep === 'results' ? 'min-h-[400px] sm:min-h-[600px]' : state.currentStep === 'chat' ? 'h-[calc(100vh-140px)] sm:h-[calc(100vh-200px)]' : 'h-[400px] sm:h-[600px]'} flex flex-col bg-background/95 ${state.currentStep === 'results' ? 'overflow-y-auto' : ''}`}>
             {renderContent()}
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="mt-6 text-center text-xs text-muted-foreground">
-          <div className="flex items-center justify-center space-x-3 mb-3">
+        {/* Footer - Optimized for Mobile */}
+        <div className="mt-4 sm:mt-6 text-center text-xs text-muted-foreground px-2">
+          <div className="flex items-center justify-center space-x-2 sm:space-x-3 mb-2 sm:mb-3">
             <img 
               src={unisabanaLogo} 
               alt="Universidad de La Sabana" 
-              className="h-6 w-auto object-contain opacity-60"
+              className="h-4 sm:h-6 w-auto object-contain opacity-60"
             />
             <img 
               src={govlabLogo} 
               alt="Laboratorio de Gobierno" 
-              className="h-6 w-auto object-contain rounded opacity-60"
+              className="h-4 sm:h-6 w-auto object-contain rounded opacity-60"
             />
           </div>
-          <p>
-            Desarrollado por el <strong>Laboratorio de Gobierno</strong><br />
+          <p className="leading-relaxed">
+            Desarrollado por el <strong>Laboratorio de Gobierno</strong>
+            <br className="hidden sm:inline" />
+            <span className="sm:hidden"> - </span>
             <strong>Universidad de La Sabana</strong> © 2024
           </p>
-          <p className="mt-2">
+          <p className="mt-1 sm:mt-2 text-xs">
             🌱 Promoviendo la sostenibilidad en la educación superior
           </p>
         </div>

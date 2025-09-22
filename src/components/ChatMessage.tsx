@@ -24,21 +24,21 @@ export const ChatMessage = ({ message, onOptionSelect }: ChatMessageProps) => {
   const isBot = message.type === 'bot';
 
   return (
-    <div className={cn("flex gap-3 mb-6", isBot ? "justify-start" : "justify-end")}>
+    <div className={cn("flex gap-2 sm:gap-3 mb-4 sm:mb-6 px-1 sm:px-0", isBot ? "justify-start" : "justify-end")}>
       {isBot && (
-        <div className="w-8 h-8 rounded-full bg-white border-2 border-green-200 flex items-center justify-center shadow-soft overflow-hidden">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white border-2 border-green-200 flex items-center justify-center shadow-soft overflow-hidden flex-shrink-0">
           <img 
             src={unisabanaLogo} 
             alt="Universidad de La Sabana" 
-            className="w-6 h-6 object-contain"
+            className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
           />
         </div>
       )}
       
-      <div className={cn("max-w-[80%] space-y-2", !isBot && "order-first")}>
+      <div className={cn("max-w-[85%] sm:max-w-[80%] space-y-2", !isBot && "order-first")}>
         <div
           className={cn(
-            "px-4 py-3 rounded-2xl shadow-soft animate-fade-in",
+            "px-3 py-2.5 sm:px-4 sm:py-3 rounded-2xl shadow-soft animate-fade-in",
             isBot
               ? "bg-chat-bubble-bot text-chat-bubble-bot-foreground border border-card-border"
               : "bg-chat-bubble-user text-chat-bubble-user-foreground"
@@ -47,7 +47,7 @@ export const ChatMessage = ({ message, onOptionSelect }: ChatMessageProps) => {
           {isBot ? (
             <MarkdownRenderer 
               content={message.content} 
-              className="text-chat-bubble-bot-foreground [&_strong]:text-primary [&_p]:mb-2 [&_p:last-child]:mb-0"
+              className="text-sm sm:text-base text-chat-bubble-bot-foreground [&_strong]:text-primary [&_p]:mb-2 [&_p:last-child]:mb-0"
             />
           ) : (
             <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
@@ -64,7 +64,7 @@ export const ChatMessage = ({ message, onOptionSelect }: ChatMessageProps) => {
           </div>
         )}
         
-        {/* Opciones normales como botones */}
+        {/* Opciones normales como botones - Mobile Optimized */}
         {message.options && message.options.length > 0 && !message.specialInput && (
           <div className="flex flex-col gap-2 animate-fade-in" style={{ animationDelay: '0.2s' }}>
             {message.options.map((option, index) => (
@@ -73,7 +73,7 @@ export const ChatMessage = ({ message, onOptionSelect }: ChatMessageProps) => {
                 variant="outline"
                 size="sm"
                 onClick={() => onOptionSelect?.(option)}
-                className="justify-start text-left text-sm h-auto py-3 px-4 hover:bg-accent hover:scale-[1.02] transition-all duration-200"
+                className="justify-start text-left text-xs sm:text-sm h-auto py-2.5 sm:py-3 px-3 sm:px-4 hover:bg-accent hover:scale-[1.02] transition-all duration-200 min-h-[44px] touch-manipulation"
                 style={{ animationDelay: `${0.3 + index * 0.1}s` }}
               >
                 {option}
@@ -84,9 +84,9 @@ export const ChatMessage = ({ message, onOptionSelect }: ChatMessageProps) => {
       </div>
       
       {!isBot && (
-        <Avatar className="w-8 h-8 bg-secondary">
+        <Avatar className="w-7 h-7 sm:w-8 sm:h-8 bg-secondary flex-shrink-0">
           <AvatarFallback className="bg-secondary text-secondary-foreground">
-            <User className="w-4 h-4" />
+            <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </AvatarFallback>
         </Avatar>
       )}

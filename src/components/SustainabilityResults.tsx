@@ -239,22 +239,23 @@ Universidad de La Sabana © 2024
   };
 
   return (
-    <div className="p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <div className="flex items-center justify-center space-x-2">
-            <CheckCircle className="w-12 h-12 text-green-600" />
-            <div>
-              <h1 className="text-3xl font-bold text-primary">Evaluación Completada</h1>
-              <p className="text-muted-foreground">Diagnóstico de Sostenibilidad Universitaria</p>
+    <div className="p-3 sm:p-6">
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6">
+        {/* Header - Mobile Optimized */}
+        <div className="text-center space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
+            <CheckCircle className="w-8 h-8 sm:w-12 sm:h-12 text-green-600 flex-shrink-0" />
+            <div className="text-center sm:text-left">
+              <h1 className="text-xl sm:text-3xl font-bold text-primary leading-tight">Evaluación Completada</h1>
+              <p className="text-sm text-muted-foreground">Diagnóstico de Sostenibilidad Universitaria</p>
             </div>
           </div>
           
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-4">
-            <h2 className="text-xl font-semibold">{results.profile.university}</h2>
-            <p className="text-sm text-muted-foreground">
-              Evaluado por: {results.profile.name} • {results.completedAt.toLocaleDateString()}
+          <div className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-lg p-3 sm:p-4">
+            <h2 className="text-lg sm:text-xl font-semibold truncate">{results.profile.university}</h2>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Evaluado por: <span className="font-medium">{results.profile.name}</span>
+              <span className="block sm:inline"> • {results.completedAt.toLocaleDateString()}</span>
             </p>
           </div>
         </div>
@@ -282,20 +283,22 @@ Universidad de La Sabana © 2024
           </CardContent>
         </Card>
 
-        {/* Dimensions Results */}
-        <div className="grid gap-6 md:grid-cols-3">
+        {/* Dimensions Results - Mobile Optimized */}
+        <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {/* Ambiental */}
           <Card className="bg-green-50/50 border-green-200/50">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span>🌍 Ambiental</span>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                  <span className="text-sm sm:text-base">🌍 Ambiental</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-bold text-green-800">
+                  {displayScore(results.dimensions.ambiental.score)}/5.0
+                </div>
               </CardTitle>
-              <div className="text-2xl font-bold text-green-800">
-                {displayScore(results.dimensions.ambiental.score)}/5.0
-              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 pt-0">
               <LightProgress value={(results.dimensions.ambiental.score ?? 0) * 20} className="h-2" />
               
               <div className="space-y-2">
@@ -318,16 +321,18 @@ Universidad de La Sabana © 2024
 
           {/* Social */}
           <Card className="bg-blue-50/50 border-blue-200/50">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span>👥 Social</span>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                  <span className="text-sm sm:text-base">👥 Social</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-bold text-blue-800">
+                  {displayScore(results.dimensions.social.score)}/5.0
+                </div>
               </CardTitle>
-              <div className="text-2xl font-bold text-blue-800">
-                {displayScore(results.dimensions.social.score)}/5.0
-              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 pt-0">
               <LightProgress value={(results.dimensions.social.score ?? 0) * 20} className="h-2" />
               
               <div className="space-y-2">
@@ -350,16 +355,18 @@ Universidad de La Sabana © 2024
 
           {/* Gobernanza */}
           <Card className="bg-purple-50/50 border-purple-200/50">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                <span>🏦 Gobernanza</span>
+            <CardHeader className="pb-3 sm:pb-6">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
+                  <span className="text-sm sm:text-base">🏦 Gobernanza</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-bold text-purple-800">
+                  {displayScore(results.dimensions.gobernanza.score)}/5.0
+                </div>
               </CardTitle>
-              <div className="text-2xl font-bold text-purple-800">
-                {displayScore(results.dimensions.gobernanza.score)}/5.0
-              </div>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3 sm:space-y-4 pt-0">
               <LightProgress value={(results.dimensions.gobernanza.score ?? 0) * 20} className="h-2" />
               
               <div className="space-y-2">
@@ -381,21 +388,21 @@ Universidad de La Sabana © 2024
           </Card>
         </div>
 
-        {/* Detailed Recommendations */}
+        {/* Detailed Recommendations - Mobile Optimized */}
         <Card>
-          <CardHeader>
-            <CardTitle>🎯 Recomendaciones Principales</CardTitle>
+          <CardHeader className="pb-3 sm:pb-6">
+            <CardTitle className="text-base sm:text-lg">🎯 Recomendaciones Principales</CardTitle>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-64">
-              <div className="space-y-4">
+            <ScrollArea className="h-48 sm:h-64">
+              <div className="space-y-3 sm:space-y-4">
                 {/* Ambiental Recommendations */}
                 {results.dimensions.ambiental.recommendations.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-green-700 mb-2">🌍 Dimensión Ambiental</h4>
-                    <div className="space-y-1 ml-4">
+                    <h4 className="text-sm sm:text-base font-semibold text-green-700 mb-1.5 sm:mb-2">🌍 Dimensión Ambiental</h4>
+                    <div className="space-y-1 ml-2 sm:ml-4">
                       {results.dimensions.ambiental.recommendations.slice(0, 3).map((rec, index) => (
-                        <p key={index} className="text-sm text-muted-foreground">• {rec}</p>
+                        <p key={index} className="text-xs sm:text-sm text-muted-foreground leading-relaxed">• {rec}</p>
                       ))}
                     </div>
                   </div>
@@ -404,10 +411,10 @@ Universidad de La Sabana © 2024
                 {/* Social Recommendations */}
                 {results.dimensions.social.recommendations.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-blue-700 mb-2">👥 Dimensión Social</h4>
-                    <div className="space-y-1 ml-4">
+                    <h4 className="text-sm sm:text-base font-semibold text-blue-700 mb-1.5 sm:mb-2">👥 Dimensión Social</h4>
+                    <div className="space-y-1 ml-2 sm:ml-4">
                       {results.dimensions.social.recommendations.slice(0, 3).map((rec, index) => (
-                        <p key={index} className="text-sm text-muted-foreground">• {rec}</p>
+                        <p key={index} className="text-xs sm:text-sm text-muted-foreground leading-relaxed">• {rec}</p>
                       ))}
                     </div>
                   </div>
@@ -416,10 +423,10 @@ Universidad de La Sabana © 2024
                 {/* Gobernanza Recommendations */}
                 {results.dimensions.gobernanza.recommendations.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-purple-700 mb-2">🏛️ Dimensión Gobernanza</h4>
-                    <div className="space-y-1 ml-4">
+                    <h4 className="text-sm sm:text-base font-semibold text-purple-700 mb-1.5 sm:mb-2">🏦 Dimensión Gobernanza</h4>
+                    <div className="space-y-1 ml-2 sm:ml-4">
                       {results.dimensions.gobernanza.recommendations.slice(0, 3).map((rec, index) => (
-                        <p key={index} className="text-sm text-muted-foreground">• {rec}</p>
+                        <p key={index} className="text-xs sm:text-sm text-muted-foreground leading-relaxed">• {rec}</p>
                       ))}
                     </div>
                   </div>
@@ -458,24 +465,24 @@ Universidad de La Sabana © 2024
           </Card>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-4 justify-center">
-          <Button onClick={exportToPDF} className="flex items-center space-x-2">
+        {/* Action Buttons - Mobile Optimized */}
+        <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center">
+          <Button onClick={exportToPDF} className="flex items-center justify-center space-x-2 w-full sm:w-auto min-h-[44px]">
             <Download className="w-4 h-4" />
             <span>Descargar PDF</span>
           </Button>
           
-          <Button variant="outline" onClick={exportToText} className="flex items-center space-x-2">
+          <Button variant="outline" onClick={exportToText} className="flex items-center justify-center space-x-2 w-full sm:w-auto min-h-[44px]">
             <FileText className="w-4 h-4" />
             <span>Exportar Texto</span>
           </Button>
           
-          <Button variant="secondary" onClick={onContinueChat} className="flex items-center space-x-2">
+          <Button variant="secondary" onClick={onContinueChat} className="flex items-center justify-center space-x-2 w-full sm:w-auto min-h-[44px]">
             <MessageSquare className="w-4 h-4" />
             <span>Chat Especializado</span>
           </Button>
           
-          <Button variant="outline" onClick={onRestart} className="flex items-center space-x-2">
+          <Button variant="outline" onClick={onRestart} className="flex items-center justify-center space-x-2 w-full sm:w-auto min-h-[44px]">
             <RotateCcw className="w-4 h-4" />
             <span>Nueva Evaluación</span>
           </Button>
