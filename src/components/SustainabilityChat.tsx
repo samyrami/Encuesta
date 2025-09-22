@@ -52,7 +52,7 @@ Ahora estás en el **Chat Especializado en Sostenibilidad Universitaria**. Aquí
 - 👥 Social: ${(results.dimensions.social.score || 0).toFixed(1)}/5.0  
 - 🏛️ Gobernanza: ${(results.dimensions.gobernanza.score || 0).toFixed(1)}/5.0
 
-${isConfigured ? '¿En qué te gustaría profundizar?' : '⚠️ **Nota:** Para obtener respuestas personalizadas de IA, configura tu API key de OpenAI.'}`,
+¿En qué te gustaría profundizar?`,
       timestamp: new Date()
     };
 
