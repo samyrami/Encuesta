@@ -7,6 +7,7 @@ import { UniversityBranding } from './UniversityBranding';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Sparkles, User, HelpCircle, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 interface ChatQuestionnaireWizardProps {
   questions: Question[];
@@ -76,7 +77,7 @@ export const ChatQuestionnaireWizard = ({
       const welcomeMessage: ChatMessage = {
         id: 'welcome',
         type: 'bot',
-        content: `¡Hola ${contactInfo.name}! 👋\n\nSoy el asistente del **Exporta Check** de la Universidad de La Sabana. Voy a ayudarte a evaluar la capacidad exportadora de **${contactInfo.company}**.\n\nTe haré ${questions.length} preguntas sobre diferentes aspectos de tu empresa. Al final, recibirás un diagnóstico personalizado con recomendaciones específicas.\n\n¿Estás listo para comenzar? 🚀`,
+        content: `# ¡Hola ${contactInfo.name}! 👋\n\n> **Bienvenido al Exporta Check**\n> *Universidad de La Sabana*\n\n---\n\nSoy tu **asistente especializado** y voy a ayudarte a evaluar la capacidad exportadora de:\n\n## 🏢 ${contactInfo.company}\n\n### ¿Qué vamos a hacer?\n\n- ✅ **${questions.length} preguntas estratégicas** sobre tu empresa\n- 📈 **Análisis personalizado** de resultados\n- 🎯 **Recomendaciones específicas** para exportar\n- 📊 **Diagnóstico completo** con plan de acción\n\n---\n\n**¿Estás listo para comenzar?** 🚀`,
         timestamp: new Date()
       };
       initialMessages.push(welcomeMessage);
@@ -215,7 +216,7 @@ export const ChatQuestionnaireWizard = ({
           const completionMessage: ChatMessage = {
             id: 'completion',
             type: 'bot',
-            content: `¡Perfecto! 🎉\n\nHemos completado todas las preguntas. Ahora voy a analizar tus respuestas y generar un diagnóstico personalizado para **${contactInfo.company}**.\n\nEsto tomará solo unos segundos...`,
+            content: `# ¡Perfecto! 🎉\n\n## ✅ Evaluación Completada\n\n**Hemos terminado** todas las preguntas del diagnóstico. Ahora procederé a:\n\n### 🔍 Análisis en proceso...\n\n- 📊 Procesando tus **${questions.length} respuestas**\n- 🎯 Evaluando capacidad exportadora de **${contactInfo.company}**\n- 📝 Generando recomendaciones personalizadas\n- 🏆 Calculando puntuación final\n\n---\n\n> ⏳ *Esto tomará solo unos segundos...*`,
             timestamp: new Date()
           };
           setMessages(prev => [...prev, completionMessage]);
@@ -234,10 +235,10 @@ export const ChatQuestionnaireWizard = ({
   };
 
   const getAcknowledgmentMessage = (score: number): string => {
-    if (score >= 4) return "¡Excelente! 👏 Esa es una gran fortaleza.";
-    if (score >= 3) return "Muy bien! 👍 Buen punto a favor.";
-    if (score >= 2) return "Entendido 📝 Hay oportunidad de mejora ahí.";
-    return "Perfecto 📋 Esa será un área importante para desarrollar.";
+    if (score >= 4) return "## ¡Excelente! 👏\n\n**Esa es una gran fortaleza** que definitivamente te ayudará en tu proceso exportador.\n\n> *Sigue construyendo sobre esta base sólida.*";
+    if (score >= 3) return "## Muy bien! 👍\n\n**Buen punto a favor** para tu empresa. Esto muestra un desarrollo positivo.\n\n- Mantén este nivel\n- Considera cómo optimizarlo aún más";
+    if (score >= 2) return "## Entendido 📝\n\nHay **oportunidad de mejora** en esta área. No te preocupes, es normal.\n\n> *Cada empresa tiene sus áreas de crecimiento.*";
+    return "## Perfecto 📋\n\nEsa será un **área importante para desarrollar**. Aquí es donde podrás generar mayor impacto.\n\n- Identifica recursos necesarios\n- Planifica pasos concretos";
   };
 
   const handleComplete = (finalAnswers: Answer[]) => {
@@ -273,26 +274,28 @@ export const ChatQuestionnaireWizard = ({
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-chat-background to-background">
-      <div className="container mx-auto px-4 py-6 max-w-4xl">
+      <div className="container mx-auto px-2 sm:px-4 py-3 sm:py-6 max-w-4xl">
         <UniversityBranding />
         
-        {/* Progress Header */}
-        <div className="bg-card border border-card-border rounded-lg p-4 mb-6 shadow-soft">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">Evaluación en Progreso</h2>
-            <Badge variant="outline" className="text-sm">
+        {/* Progress Header - Mobile Optimized */}
+        <div className="bg-card border border-card-border rounded-lg p-3 sm:p-4 mb-4 sm:mb-6 shadow-soft">
+          <div className="flex items-center justify-between mb-2 sm:mb-3">
+            <h2 className="text-base sm:text-lg font-semibold">Evaluación en Progreso</h2>
+            <Badge variant="outline" className="text-xs sm:text-sm px-2 py-1">
               {Math.round(progress)}% completado
             </Badge>
           </div>
           <Progress value={progress} className="h-2" />
-          <p className="text-sm text-muted-foreground mt-2">
-            {contactInfo.company} • {answers.length} de {questions.length} preguntas respondidas
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+            <span className="block sm:inline">{contactInfo.company}</span>
+            <span className="hidden sm:inline"> • </span>
+            <span className="block sm:inline">{answers.length} de {questions.length} preguntas respondidas</span>
           </p>
         </div>
 
-        {/* Chat Container */}
+        {/* Chat Container - Mobile Optimized */}
         <div className="bg-card border border-card-border rounded-lg shadow-strong overflow-hidden">
-          <div className="h-[600px] overflow-y-auto p-6 space-y-6">
+          <div className="h-[500px] sm:h-[600px] overflow-y-auto p-3 sm:p-6 space-y-4 sm:space-y-6">
             {messages.map((message) => (
               <div key={message.id}>
                 <ChatMessageComponent 
@@ -305,13 +308,13 @@ export const ChatQuestionnaireWizard = ({
             ))}
             
             {isTyping && (
-              <div className="flex gap-3 justify-start">
-                <Avatar className="w-8 h-8 bg-gradient-to-br from-primary to-primary-light shadow-soft">
+              <div className="flex gap-2 sm:gap-3 justify-start px-1 sm:px-0">
+                <Avatar className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-primary-light shadow-soft flex-shrink-0">
                   <AvatarFallback className="bg-transparent text-primary-foreground">
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   </AvatarFallback>
                 </Avatar>
-                <div className="bg-chat-bubble-bot border border-card-border rounded-2xl px-4 py-3 shadow-soft">
+                <div className="bg-chat-bubble-bot border border-card-border rounded-2xl px-3 py-2.5 sm:px-4 sm:py-3 shadow-soft">
                   <div className="flex space-x-1">
                     <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
                     <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
@@ -325,7 +328,7 @@ export const ChatQuestionnaireWizard = ({
           </div>
         </div>
 
-        <div className="mt-6 text-center text-xs text-muted-foreground">
+        <div className="mt-4 sm:mt-6 text-center text-xs text-muted-foreground px-2">
           <p>
             Desarrollado por el <strong>Laboratorio de Gobierno</strong><br />
             Universidad de La Sabana © 2024
@@ -354,52 +357,43 @@ const ChatMessageComponent = ({
   const hasHelp = message.question && message.question.help;
 
   return (
-    <div className={cn("flex gap-3", isBot ? "justify-start" : "justify-end")}>
+    <div className={cn("flex gap-2 sm:gap-3 px-1 sm:px-0", isBot ? "justify-start" : "justify-end")}>
       {isBot && (
-        <Avatar className="w-8 h-8 bg-gradient-to-br from-primary to-primary-light shadow-soft">
+        <Avatar className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-primary to-primary-light shadow-soft flex-shrink-0">
           <AvatarFallback className="bg-transparent text-primary-foreground">
-            <Sparkles className="w-4 h-4" />
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </AvatarFallback>
         </Avatar>
       )}
       
       {!isBot && (
-        <Avatar className="w-8 h-8 bg-gradient-to-br from-secondary to-secondary-light shadow-soft order-2">
+        <Avatar className="w-7 h-7 sm:w-8 sm:h-8 bg-gradient-to-br from-secondary to-secondary-light shadow-soft order-2 flex-shrink-0">
           <AvatarFallback className="bg-transparent text-secondary-foreground">
-            <User className="w-4 h-4" />
+            <User className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </AvatarFallback>
         </Avatar>
       )}
       
-      <div className={cn("max-w-[80%] space-y-3", !isBot && "order-first")}>
+      <div className={cn("max-w-[85%] sm:max-w-[80%] space-y-2 sm:space-y-3", !isBot && "order-first")}>
         <div
           className={cn(
-            "px-4 py-3 rounded-2xl shadow-soft",
+            "px-3 py-2.5 sm:px-4 sm:py-3 rounded-2xl shadow-soft",
             isBot
               ? "bg-chat-bubble-bot text-chat-bubble-bot-foreground border border-card-border"
               : "bg-chat-bubble-user text-chat-bubble-user-foreground"
           )}
         >
-          <div className="text-sm leading-relaxed whitespace-pre-wrap">
-            {message.content.split('\n').map((line, index) => (
-              <div key={index}>
-                {line.includes('**') ? (
-                  <div dangerouslySetInnerHTML={{ 
-                    __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') 
-                  }} />
-                ) : (
-                  <div>{line}</div>
-                )}
-              </div>
-            ))}
-          </div>
+          <MarkdownRenderer 
+            content={message.content}
+            className="text-chat-bubble-bot-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
+          />
           
           {hasHelp && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onToggleHelp?.(message.question!.id)}
-              className="mt-2 h-6 text-xs opacity-70 hover:opacity-100"
+              className="mt-2 h-8 sm:h-6 text-xs opacity-70 hover:opacity-100 touch-manipulation"
             >
               <HelpCircle className="w-3 h-3 mr-1" />
               {showHelp ? 'Ocultar ayuda' : '¿Qué significa esto?'}
@@ -417,7 +411,7 @@ const ChatMessageComponent = ({
         )}
         
         {hasOptions && message.question?.options && (
-          <div className="space-y-2">
+          <div className="space-y-2 sm:space-y-3">
             {message.question.options.map((option, index) => {
               const isSelected = message.answer?.optionValue === option.value;
               return (
@@ -425,21 +419,21 @@ const ChatMessageComponent = ({
                   key={index}
                   variant={isSelected ? "default" : "outline"}
                   className={cn(
-                    "w-full text-left justify-start h-auto p-3 text-sm",
+                    "w-full text-left justify-start h-auto min-h-[52px] sm:min-h-[60px] p-3 sm:p-4 text-xs sm:text-sm touch-manipulation",
                     isSelected && "ring-2 ring-primary ring-offset-2",
                     !isSelected && "hover:bg-muted"
                   )}
                   onClick={() => onAnswerSelect?.(option.value, option.label)}
                   disabled={!!message.answer}
                 >
-                  <div className="flex items-center justify-between w-full">
-                    <span>{option.label}</span>
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="text-xs">
+                  <div className="flex items-start justify-between w-full gap-3">
+                    <span className="flex-1 leading-relaxed text-left break-words">{option.label}</span>
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                      <Badge variant="outline" className="text-xs px-1.5 py-0.5">
                         {option.value} pts
                       </Badge>
                       {isSelected && (
-                        <CheckCircle2 className="w-4 h-4 text-primary" />
+                        <CheckCircle2 className="w-4 h-4 text-primary flex-shrink-0" />
                       )}
                     </div>
                   </div>

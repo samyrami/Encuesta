@@ -9,70 +9,121 @@ interface MarkdownRendererProps {
 
 export const MarkdownRenderer = ({ content, className }: MarkdownRendererProps) => {
   return (
-    <div className={className}>
+    <div className={cn("markdown-content", className)}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          // Custom styling for markdown elements
+          // Custom styling for markdown elements - Mobile First & Aesthetic
           h1: ({ children }) => (
-            <h1 className="text-xl font-bold text-foreground mb-3">{children}</h1>
+            <h1 className="text-lg sm:text-xl font-bold text-foreground mb-2 sm:mb-3 leading-tight">
+              {children}
+            </h1>
           ),
           h2: ({ children }) => (
-            <h2 className="text-lg font-semibold text-foreground mb-2">{children}</h2>
+            <h2 className="text-base sm:text-lg font-semibold text-foreground mb-2 leading-tight">
+              {children}
+            </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-base font-semibold text-foreground mb-2">{children}</h3>
+            <h3 className="text-sm sm:text-base font-semibold text-foreground mb-1.5 sm:mb-2 leading-tight">
+              {children}
+            </h3>
+          ),
+          h4: ({ children }) => (
+            <h4 className="text-sm font-medium text-foreground mb-1.5 leading-tight">
+              {children}
+            </h4>
           ),
           p: ({ children }) => (
-            <p className="text-sm leading-relaxed mb-3 last:mb-0">{children}</p>
+            <p className="text-sm sm:text-base leading-relaxed mb-2 sm:mb-3 last:mb-0 text-foreground">
+              {children}
+            </p>
           ),
           strong: ({ children }) => (
-            <strong className="font-semibold text-primary">{children}</strong>
+            <strong className="font-bold text-primary bg-primary/10 px-1 py-0.5 rounded">
+              {children}
+            </strong>
           ),
           em: ({ children }) => (
-            <em className="italic text-muted-foreground">{children}</em>
+            <em className="italic text-muted-foreground font-medium">{children}</em>
           ),
           ul: ({ children }) => (
-            <ul className="list-disc list-inside mb-3 space-y-1">{children}</ul>
+            <ul className="space-y-1 sm:space-y-1.5 mb-2 sm:mb-3 ml-2">
+              {children}
+            </ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside mb-3 space-y-1">{children}</ol>
+            <ol className="space-y-1 sm:space-y-1.5 mb-2 sm:mb-3 ml-2">
+              {children}
+            </ol>
           ),
           li: ({ children }) => (
-            <li className="text-sm leading-relaxed">{children}</li>
+            <li className="text-sm sm:text-base leading-relaxed relative flex items-start">
+              <span className="inline-flex items-center justify-center w-1.5 h-1.5 bg-primary rounded-full mr-3 mt-2 flex-shrink-0"></span>
+              <span className="flex-1">{children}</span>
+            </li>
           ),
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-primary pl-4 py-2 bg-accent/50 rounded-r-lg mb-3">
-              {children}
+            <blockquote className="border-l-4 border-primary/60 pl-3 sm:pl-4 py-2 bg-primary/5 rounded-r-lg mb-2 sm:mb-3 italic">
+              <div className="text-sm sm:text-base text-primary/80">
+                {children}
+              </div>
             </blockquote>
           ),
           code: ({ children, className }) => {
             const isInline = !className;
             if (isInline) {
               return (
-                <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">
+                <code className="bg-muted/80 px-1.5 py-0.5 rounded text-xs sm:text-sm font-mono border border-border/50 text-foreground">
                   {children}
                 </code>
               );
             }
             return (
-              <pre className="bg-muted p-3 rounded-lg overflow-x-auto mb-3">
-                <code className="text-xs font-mono">{children}</code>
+              <pre className="bg-muted/80 p-3 sm:p-4 rounded-lg overflow-x-auto mb-2 sm:mb-3 border border-border/50">
+                <code className="text-xs sm:text-sm font-mono text-foreground whitespace-pre">
+                  {children}
+                </code>
               </pre>
             );
           },
           hr: () => (
-            <hr className="border-border my-4" />
+            <hr className="border-border/60 my-3 sm:my-4 border-dashed" />
           ),
           a: ({ children, href }) => (
             <a 
               href={href} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="text-primary hover:text-primary-light underline transition-colors"
+              className="text-primary hover:text-primary/80 underline decoration-primary/60 hover:decoration-primary transition-all duration-200 font-medium"
             >
               {children}
             </a>
+          ),
+          // Añadir soporte para tablas
+          table: ({ children }) => (
+            <div className="overflow-x-auto mb-2 sm:mb-3">
+              <table className="min-w-full border border-border rounded-lg">
+                {children}
+              </table>
+            </div>
+          ),
+          thead: ({ children }) => (
+            <thead className="bg-muted/50">{children}</thead>
+          ),
+          tbody: ({ children }) => (
+            <tbody>{children}</tbody>
+          ),
+          tr: ({ children }) => (
+            <tr className="border-b border-border/50">{children}</tr>
+          ),
+          th: ({ children }) => (
+            <th className="px-3 py-2 text-left text-sm font-semibold text-foreground">
+              {children}
+            </th>
+          ),
+          td: ({ children }) => (
+            <td className="px-3 py-2 text-sm text-foreground">{children}</td>
           )
         }}
       >

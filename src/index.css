@@ -211,4 +211,90 @@
       transform: scale(1);
     }
   }
+
+  /* Markdown Content Styling */
+  .markdown-content {
+    @apply text-foreground;
+  }
+
+  .markdown-content h1,
+  .markdown-content h2,
+  .markdown-content h3,
+  .markdown-content h4 {
+    @apply scroll-mt-20;
+  }
+
+  .markdown-content p {
+    @apply text-inherit;
+  }
+
+  .markdown-content strong {
+    @apply transition-all duration-200;
+  }
+
+  .markdown-content strong:hover {
+    @apply bg-primary/20;
+  }
+
+  .markdown-content ul li,
+  .markdown-content ol li {
+    @apply break-words;
+  }
+
+  .markdown-content blockquote {
+    @apply relative;
+  }
+
+  .markdown-content blockquote::before {
+    content: '"';
+    @apply text-2xl text-primary/40 absolute -left-1 -top-1;
+  }
+
+  .markdown-content pre {
+    @apply relative;
+  }
+
+  .markdown-content pre:hover {
+    @apply bg-muted;
+  }
+
+  .markdown-content table {
+    @apply border-collapse;
+  }
+
+  .markdown-content table:hover {
+    @apply shadow-md;
+  }
+
+  .markdown-content tr:hover {
+    @apply bg-muted/30;
+  }
+
+  /* Animation for markdown elements */
+  .markdown-content * {
+    @apply transition-colors duration-200;
+  }
+
+  /* Mobile-specific markdown improvements */
+  @media (max-width: 640px) {
+    .markdown-content {
+      @apply text-sm;
+    }
+    
+    .markdown-content h1 {
+      @apply text-base;
+    }
+    
+    .markdown-content h2 {
+      @apply text-sm;
+    }
+    
+    .markdown-content pre {
+      @apply text-xs;
+    }
+    
+    .markdown-content table {
+      @apply text-xs;
+    }
+  }
 }

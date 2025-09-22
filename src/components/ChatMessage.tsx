@@ -47,7 +47,7 @@ export const ChatMessage = ({ message, onOptionSelect }: ChatMessageProps) => {
           {isBot ? (
             <MarkdownRenderer 
               content={message.content} 
-              className="text-sm sm:text-base text-chat-bubble-bot-foreground [&_strong]:text-primary [&_p]:mb-2 [&_p:last-child]:mb-0"
+              className="text-chat-bubble-bot-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0"
             />
           ) : (
             <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
