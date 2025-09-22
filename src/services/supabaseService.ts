@@ -252,6 +252,26 @@ class SupabaseService {
         recomendaciones: surveyData.recomendaciones?.length || 0
       });
 
+      // Debug: Log de columnas que se van a enviar
+      const columnNames = Object.keys(surveyData).filter(key => key.endsWith('_respuesta') || key.endsWith('_re'));
+      console.log('🔍 Columnas de respuesta que se van a enviar:', columnNames);
+      
+      // Validar que no existan columnas problemáticas
+      const problematicColumns = columnNames.filter(col => col.includes('politicas_transferencia') && col.endsWith('_respuesta'));
+      if (problematicColumns.length > 0) {
+        console.error('❌ COLUMNAS PROBLEMÁTICAS DETECTADAS:', problematicColumns);
+        // Corregir sobre la marcha
+        problematicColumns.forEach(col => {
+          const correctColumn = col.replace('_respuesta', '_re');
+          console.log(`🔧 Corrigiendo ${col} → ${correctColumn}`);
+          surveyData[correctColumn] = surveyData[col];
+          delete surveyData[col];
+        });
+      }
+      
+      // Log final de todas las columnas
+      console.log('📋 Todas las columnas a enviar:', Object.keys(surveyData));
+      
       // Insertar en base de datos
       console.log('💾 Insertando en base de datos...');
       const result = await this.makeRequest('survey_responses', {
