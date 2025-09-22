@@ -210,9 +210,18 @@ class SupabaseService {
               return;
             }
             
-            // Guardar score y respuesta
+            // Guardar score y respuesta con manejo de nombres de columnas truncados
             surveyData[columnName] = score;
-            surveyData[`${columnName}_respuesta`] = this.cleanResponseText(
+            
+            // Manejar nombres de columnas truncados para respuestas
+            let responseColumnName = `${columnName}_respuesta`;
+            
+            // Casos especiales para nombres truncados
+            if (columnName === 'politicas_transferencia_conocimiento_medicion_impacto_social') {
+              responseColumnName = 'politicas_transferencia_conocimiento_medicion_impacto_social_re';
+            }
+            
+            surveyData[responseColumnName] = this.cleanResponseText(
               response.answer || response.response || response.selectedOption || ''
             );
             
